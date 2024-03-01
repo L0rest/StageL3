@@ -383,7 +383,8 @@ def calcul_grand_canonique_isoth(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, EFv, 
             if solvables > 0:
                 traceCONC_isoth(T, concentration[4], atom, amas, amasnum, dtype)
             else:
-                print("Impossible de tracer le graphe pour cette valeur de concentration, toutes les valeurs de températures ont provoqué un échec du solveur!")
+                print(
+                    "Impossible de tracer le graphe pour cette valeur de concentration, toutes les valeurs de températures ont provoqué un échec du solveur!")
 
 
 ###============================================================
@@ -721,7 +722,9 @@ def lire_fichier():
         fichier = open("data_" + crystal + "_" + atom, "r")
         texte = fichier.read()
         fichier.close()
-        texte = texte.replace("\n", "\n\n")
+        fichier = open("data_" + crystal + "_" + atom, "r")
+        nb_ligne = len(fichier.readlines())
+        fichier.close()
         texte = texte.replace(" ", " ; ")
     except FileNotFoundError:
         tkt.messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
@@ -730,9 +733,27 @@ def lire_fichier():
     # Ouvrir une fenêtre pour afficher les données du fichier
     fenetreFichier = tkt.Toplevel()
     fenetreFichier.title("Fichier")
-    textZone = tkt.Label(fenetreFichier, font=("Arial", 12), padx=20, pady=20, justify="left")
-    textZone.pack()
-    textZone.config(text=texte)
+    for i in range(nb_ligne + 1):
+        fenetreFichier.rowconfigure(i, weight=1)
+    for i in range(5):
+        fenetreFichier.columnconfigure(i, weight=1)
+
+    texte = texte.split("\n")
+
+    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=0, sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Nb atome" + atom, font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=1, sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Dégénéréscence", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=2, sticky=NSEW)
+    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=3, sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Nom Config", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=4, sticky=NSEW)
+
+    for i in range(nb_ligne):
+        ligne = texte[i].split(" ; ")
+        for j in range(5):
+            tkt.Label(fenetreFichier, text=ligne[j], font=("Arial", 11), borderwidth=1, relief="solid").grid(row=i+1,
+                                                                                                             column=j,
+                                                                                                             sticky=NSEW)
+
+    fenetreFichier.geometry("800x" + str(50 * nb_ligne))
     fenetreFichier.mainloop()
 
 
@@ -751,7 +772,8 @@ y_scrollbar.pack(side = RIGHT, fill = Y)
 my_canvas.configure(yscrollcommand = y_scrollbar.set)
 my_canvas.bind("<Configure>", lambda e: my_canvas.config(scrollregion= my_canvas.bbox(ALL)))"""
 
-cadre1 = tkt.LabelFrame(fenetre, text="Paramétrage des variations de température, en Kelvin", padx=20, pady=20, font=("Arial", 10), bd=5, relief="groove")
+cadre1 = tkt.LabelFrame(fenetre, text="Paramétrage des variations de température, en Kelvin", padx=20, pady=20,
+                        font=("Arial", 10), bd=5, relief="groove")
 cadre1.rowconfigure(0, weight=1)
 cadre1.rowconfigure(1, weight=1)
 cadre1.rowconfigure(2, weight=1)
@@ -786,7 +808,8 @@ titre_atom = tkt.Label(cadre1, text="Entrez le nombre d'atomes par maille :", fo
 nb_atom_maille.insert(0, "1")
 ## &Kevin-fin&
 
-cadre2 = tkt.LabelFrame(fenetre, text="Sélection des atomes", padx=20, pady=20, font=("Arial", 10), bd=5, relief="groove")
+cadre2 = tkt.LabelFrame(fenetre, text="Sélection des atomes", padx=20, pady=20, font=("Arial", 10), bd=5,
+                        relief="groove")
 cadre2.grid(row=1, column=0, sticky="nsew")
 cadre2.rowconfigure(0, weight=1)
 cadre2.rowconfigure(1, weight=1)
