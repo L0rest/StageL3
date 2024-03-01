@@ -383,8 +383,7 @@ def calcul_grand_canonique_isoth(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, EFv, 
             if solvables > 0:
                 traceCONC_isoth(T, concentration[4], atom, amas, amasnum, dtype)
             else:
-                print(
-                    "Impossible de tracer le graphe pour cette valeur de concentration, toutes les valeurs de températures ont provoqué un échec du solveur!")
+                print("Impossible de tracer le graphe pour cette valeur de concentration, toutes les valeurs de températures ont provoqué un échec du solveur!")
 
 
 ###============================================================
@@ -723,6 +722,7 @@ def lire_fichier():
         texte = fichier.read()
         fichier.close()
         texte = texte.replace("\n", "\n\n")
+        texte = texte.replace(" ", " ; ")
     except FileNotFoundError:
         tkt.messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
         return
@@ -730,7 +730,6 @@ def lire_fichier():
     # Ouvrir une fenêtre pour afficher les données du fichier
     fenetreFichier = tkt.Toplevel()
     fenetreFichier.title("Fichier")
-    fenetreFichier.geometry("800x600")
     textZone = tkt.Label(fenetreFichier, font=("Arial", 12), padx=20, pady=20, justify="left")
     textZone.pack()
     textZone.config(text=texte)
@@ -843,8 +842,8 @@ selection_type_g.current(0)
 ## &Kevin-fin&
 
 
-etape1 = tkt.Button(cadre2, text="Vérifier les données du fichier", command=lire_fichier)
-etape2 = tkt.Button(cadre2, text="Tracer le graphe!", command=trace)
+etape1 = tkt.Button(cadre2, text="Vérifier les données du fichier", command=lire_fichier, bd=3)
+etape2 = tkt.Button(cadre2, text="Tracer le graphe!", command=trace, bd=3)
 """arrow1 = tkt.Button(cadre2, text="Graphe précédent", command=shift_left)
 arrow2 = tkt.Button(cadre2, text="Graphe suivant", command=shift_right)
 caught = tkt.Button(cadre2, text="Enregistrer le graphe dans le dossier courant", command=record)
