@@ -712,18 +712,29 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
 
 
 def lire_fichier():
+    global select
+
+    data = recuperation()
+    crystal = data[9]
+    atom = data[7]
+
+    try:
+        fichier = open("data_" + crystal + "_" + atom, "r")
+        texte = fichier.read()
+        fichier.close()
+        texte = texte.replace("\n", "\n\n")
+    except FileNotFoundError:
+        tkt.messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
+        return
+
     # Ouvrir une fenêtre pour afficher les données du fichier
     fenetreFichier = tkt.Toplevel()
     fenetreFichier.title("Fichier")
     fenetreFichier.geometry("800x600")
-    fichier = open("data_Ti_N", "r")
-    texte = fichier.read()
-    fichier.close()
-    texte = texte.replace("\n", "\n\n")
-
-    textZone = tkt.Label(fenetreFichier, font=("Arial", 12), padx=20, pady=20)
+    textZone = tkt.Label(fenetreFichier, font=("Arial", 12), padx=20, pady=20, justify="left")
     textZone.pack()
     textZone.config(text=texte)
+    fenetreFichier.mainloop()
 
 
 figs = []  # Pour stocker notre série de graphes
@@ -778,56 +789,66 @@ nb_atom_maille.insert(0, "1")
 
 cadre2 = tkt.LabelFrame(fenetre, text="Sélection des atomes", padx=20, pady=20, font=("Arial", 10), bd=5, relief="groove")
 cadre2.grid(row=1, column=0, sticky="nsew")
+cadre2.rowconfigure(0, weight=1)
+cadre2.rowconfigure(1, weight=1)
+cadre2.rowconfigure(2, weight=1)
+cadre2.rowconfigure(3, weight=1)
+cadre2.rowconfigure(4, weight=1)
+cadre2.rowconfigure(5, weight=1)
+cadre2.rowconfigure(6, weight=1)
+cadre2.columnconfigure(0, weight=1)
+cadre2.columnconfigure(1, weight=1)
+cadre2.columnconfigure(2, weight=1)
+cadre2.columnconfigure(3, weight=1)
+cadre2.columnconfigure(4, weight=1)
 
-selection_atome = tkt.Label(cadre2, text="Sélectionnez la molécule à faire pénétrer dans le cristal :")
+selection_atome = tkt.Label(cadre2, text="Molécule à faire pénétrer dans le cristal :", font=("Arial", 11))
 atomes_y = ['H: Dihydrogène', 'C: Carbone allotrope diamant', 'N: Diazote', 'O: Dioxygène',
             'Dihydrogène, version de débugage']
-selection_y = ttk.Combobox(cadre2, values=atomes_y)
-selection_y.current(1)
+selection_y = ttk.Combobox(cadre2, values=atomes_y, justify="center", state="readonly", font=("Arial", 11))
+selection_y.current(0)
 
-selection_cristal = tkt.Label(cadre2, text="Sélectionnez le cristal :")
+selection_cristal = tkt.Label(cadre2, text="Sélectionnez le cristal :", font=("Arial", 11))
 ## &Kevin-debut&
 atomes_c = ['Be: Béryllium', 'Ti: Titane']
 ## &Kevin-fin&
-selection_r = ttk.Combobox(cadre2, values=atomes_c)
-selection_r.current(1)
+selection_r = ttk.Combobox(cadre2, values=atomes_c, justify="center", state="readonly", font=("Arial", 11))
+selection_r.current(0)
 
-selection_canonique = tkt.Label(cadre2, text="Sélectionnez l'ensemble canonique :")
+selection_canonique = tkt.Label(cadre2, text="Ensemble canonique :", font=("Arial", 11))
 canoniques = ['GCy: lacunaire uniquement', 'GCvy: lacunaire et interstitiel']
-selection_c = ttk.Combobox(cadre2, values=canoniques)
-selection_c.current(1)
+selection_c = ttk.Combobox(cadre2, values=canoniques, justify="center", state="readonly", font=("Arial", 11))
+selection_c.current(0)
 
-selection_oxyde = tkt.Label(cadre2, text="Sélectionnez la charge des atomes :")
+selection_oxyde = tkt.Label(cadre2, text="Charge des atomes :", font=("Arial", 11))
 oxydes = ['Oxydes', 'Non chargés']
-selection_x = ttk.Combobox(cadre2, values=oxydes)
-selection_x.current(1)
+selection_x = ttk.Combobox(cadre2, values=oxydes, justify="center", state="readonly", font=("Arial", 11))
+selection_x.current(0)
 
-selection_conc = tkt.Label(cadre2, text="Sélectionnez l'intervalle des valeurs de concentration :")
+selection_conc = tkt.Label(cadre2, text="Intervalle des valeurs de concentration :", font=("Arial", 11))
 concentrations = ['Exponentiel borné', 'Test unique', 'Valeurs linéaires']
-selection_o = ttk.Combobox(cadre2, values=concentrations)
-selection_o.current(1)
+selection_o = ttk.Combobox(cadre2, values=concentrations, justify="center", state="readonly", font=("Arial", 11))
+selection_o.current(0)
 
-selection_dft = tkt.Label(cadre2, text="Sélectionnez le mode de traitement des énergies de liaison :")
+selection_dft = tkt.Label(cadre2, text="Mode de traitement des énergies de liaison :", font=("Arial", 11))
 debugs = ['DFT', 'Energy Binding']
-selection_d = ttk.Combobox(cadre2, values=debugs)
-selection_d.current(1)
+selection_d = ttk.Combobox(cadre2, values=debugs, justify="center", state="readonly", font=("Arial", 11))
+selection_d.current(0)
 
 ## &Kevin-debut&
-selection_type_graphe = tkt.Label(cadre2, text="Sélectionnez le mode de représentation des calculs :")
+selection_type_graphe = tkt.Label(cadre2, text="Mode de représentation des calculs :", font=("Arial", 11))
 types_g = ['Isotherme', 'Iso-concentration']
-selection_type_g = ttk.Combobox(cadre2, values=types_g)
-selection_type_g.current(1)
+selection_type_g = ttk.Combobox(cadre2, values=types_g, justify="center", state="readonly", font=("Arial", 11))
+selection_type_g.current(0)
 ## &Kevin-fin&
 
 
-etape1 = tkt.Button(cadre2, text="Vérifier les données saisies", command=lire_fichier)
+etape1 = tkt.Button(cadre2, text="Vérifier les données du fichier", command=lire_fichier)
 etape2 = tkt.Button(cadre2, text="Tracer le graphe!", command=trace)
-arrow1 = tkt.Button(cadre2, text="Graphe précédent", command=shift_left)
+"""arrow1 = tkt.Button(cadre2, text="Graphe précédent", command=shift_left)
 arrow2 = tkt.Button(cadre2, text="Graphe suivant", command=shift_right)
 caught = tkt.Button(cadre2, text="Enregistrer le graphe dans le dossier courant", command=record)
-cauall = tkt.Button(cadre2, text="Enregistrer tous les graphes", command=record_all)
-
-tot_label = tkt.Label(cadre2, text=' ')
+cauall = tkt.Button(cadre2, text="Enregistrer tous les graphes", command=record_all)"""
 
 titre_initiale.grid(row=0, column=0, sticky=S)
 temperature_initiale.grid(row=1, column=0, sticky=N)
@@ -845,35 +866,26 @@ titre_atom.grid(row=2, column=3, sticky=S)
 nb_atom_maille.grid(row=3, column=3, sticky=N)
 ## &Kevin-fin&
 
-selection_atome.grid(row=1, column=1)
-selection_y.grid(row=1, column=2)
-selection_oxyde.grid(row=1, column=3)
-selection_x.grid(row=1, column=4)
-selection_cristal.grid(row=2, column=1)
-selection_r.grid(row=2, column=2)
-selection_canonique.grid(row=2, column=3)
-selection_c.grid(row=2, column=4)
-selection_conc.grid(row=3, column=1)
-selection_o.grid(row=3, column=2)
-selection_dft.grid(row=3, column=3)
-selection_d.grid(row=3, column=4)
-etape1.grid(row=4, column=1)
-etape2.grid(row=4, column=2)
-arrow1.grid(row=5, column=1)
-arrow2.grid(row=5, column=2)
-## &Kevin-debut&
-selection_type_graphe.grid(row=5, column=3)
-selection_type_g.grid(row=5, column=4)
-## &Kevin-fin&
-caught.grid(row=6, column=1)
-cauall.grid(row=6, column=2)
-## &Kevin-debut&
-tot_label.grid(row=6, column=3)
-## &Kevin-fin&
+selection_atome.grid(row=0, column=0, sticky=NSEW)
+selection_y.grid(row=0, column=1, sticky=NSEW)
+selection_oxyde.grid(row=1, column=0, sticky=NSEW)
+selection_x.grid(row=1, column=1, sticky=NSEW)
+selection_cristal.grid(row=2, column=0, sticky=NSEW)
+selection_r.grid(row=2, column=1, sticky=NSEW)
+selection_canonique.grid(row=0, column=3, sticky=NSEW)
+selection_c.grid(row=0, column=4, sticky=NSEW)
+selection_conc.grid(row=1, column=3, sticky=NSEW)
+selection_o.grid(row=1, column=4, sticky=NSEW)
+selection_dft.grid(row=2, column=3, sticky=NSEW)
+selection_d.grid(row=2, column=4, sticky=NSEW)
+selection_type_graphe.grid(row=3, column=3, sticky=NSEW)
+selection_type_g.grid(row=3, column=4, sticky=NSEW)
+etape1.grid(row=5, column=2, sticky=NSEW)
+etape2.grid(row=6, column=2, sticky=NSEW)
 
 texte0 = tkt.Label(fenetre,
                    text="Version: 0.3.1 du 14/12/2023 par Kevin Gautier \n Versions précédentes: 0.2 du 06/05/2023 par Gabriel Faraut \n 0.1 du 25/06/2021 par Damien Connétable \n E_mail: damien.connetable@ensiacet.fr \n CNRS CIRIMAT")
 texte0.grid(row=2, column=0, sticky="nsew")
 
-fenetre.resizable(width=True, height=True)
+fenetre.resizable(True, True)
 fenetre.mainloop()  # Tout
