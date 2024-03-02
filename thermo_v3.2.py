@@ -544,14 +544,59 @@ def tracer():  # Pour afficher le graphe sélectionné
     global select
     # Ouvrir une fenêtre pour afficher le graphe
     fenetreGraphe = tkt.Toplevel()
-    fenetreGraphe.title("Graphe")
+    fenetreGraphe.title("Graphes")
     fenetreGraphe.geometry("800x600")
     canvas = FigureCanvasTkAgg(figs[select % len(figs)][0], master=fenetreGraphe)
-    canvas.get_tk_widget().pack()
+    canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
     canvas.draw()
     toolbar = NavigationToolbar2Tk(canvas, fenetreGraphe)
     toolbar.update()
-    canvas.get_tk_widget().pack()
+    canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+
+    # Boutons pour changer de graphe
+    def shift_left():
+        global select
+        select -= 1
+
+        for widget in fenetreGraphe.winfo_children():
+            widget.destroy()
+
+        canvas = FigureCanvasTkAgg(figs[select % len(figs)][0], master=fenetreGraphe)
+        canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+        canvas.draw()
+        toolbar = NavigationToolbar2Tk(canvas, fenetreGraphe)
+        toolbar.update()
+        canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+
+        boutonGauche = tkt.Button(fenetreGraphe, text="Précédent", command=shift_left, padx=5, pady=5, bd=3)
+        boutonGauche.pack()
+        boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
+        boutonDroite.pack()
+
+    def shift_right():
+        global select
+        select += 1
+
+        for widget in fenetreGraphe.winfo_children():
+            widget.destroy()
+
+        canvas = FigureCanvasTkAgg(figs[select % len(figs)][0], master=fenetreGraphe)
+        canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+        canvas.draw()
+        toolbar = NavigationToolbar2Tk(canvas, fenetreGraphe)
+        toolbar.update()
+        canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+
+        boutonGauche = tkt.Button(fenetreGraphe, text="Précédent", command=shift_left, padx=5, pady=5, bd=3)
+        boutonGauche.pack()
+        boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
+        boutonDroite.pack()
+
+    boutonGauche = tkt.Button(fenetreGraphe, text="Précédent", command=shift_left, padx=5, pady=5, bd=3)
+    boutonGauche.pack()
+    boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
+    boutonDroite.pack()
+
     fenetreGraphe.mainloop()
 
 
@@ -560,29 +605,63 @@ def tracer_isoth():  # Pour afficher le graphe sélectionné
     global select
     # Ouvrir une fenêtre pour afficher le graphe
     fenetreGraphe = tkt.Toplevel()
-    fenetreGraphe.title("Graphe Isotherme")
+    fenetreGraphe.title("Graphes isothermes")
     fenetreGraphe.geometry("800x600")
     canvas = FigureCanvasTkAgg(figs[select % len(figs)][0], master=fenetreGraphe)
-    canvas.get_tk_widget().pack()
+    canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
     canvas.draw()
     toolbar = NavigationToolbar2Tk(canvas, fenetreGraphe)
     toolbar.update()
-    canvas.get_tk_widget().pack()
+    canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+
+    # Boutons pour changer de graphe
+    def shift_left():
+        global select
+        select -= 1
+
+        for widget in fenetreGraphe.winfo_children():
+            widget.destroy()
+
+        canvas = FigureCanvasTkAgg(figs[select % len(figs)][0], master=fenetreGraphe)
+        canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+        canvas.draw()
+        toolbar = NavigationToolbar2Tk(canvas, fenetreGraphe)
+        toolbar.update()
+        canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+
+        boutonGauche = tkt.Button(fenetreGraphe, text="Précédent", command=shift_left, padx=5, pady=5, bd=3)
+        boutonGauche.pack()
+        boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
+        boutonDroite.pack()
+
+    def shift_right():
+        global select
+        select += 1
+
+        for widget in fenetreGraphe.winfo_children():
+            widget.destroy()
+
+        canvas = FigureCanvasTkAgg(figs[select % len(figs)][0], master=fenetreGraphe)
+        canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+        canvas.draw()
+        toolbar = NavigationToolbar2Tk(canvas, fenetreGraphe)
+        toolbar.update()
+        canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+
+        boutonGauche = tkt.Button(fenetreGraphe, text="Précédent", command=shift_left, padx=5, pady=5, bd=3)
+        boutonGauche.pack()
+        boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
+        boutonDroite.pack()
+
+    boutonGauche = tkt.Button(fenetreGraphe, text="Précédent", command=shift_left, padx=5, pady=5, bd=3)
+    boutonGauche.pack()
+    boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
+    boutonDroite.pack()
+
     fenetreGraphe.mainloop()
 
 
 ## &Kevin-fin&
-
-def shift_left():
-    global select
-    select -= 1
-    tracer()
-
-
-def shift_right():
-    global select
-    select += 1
-    tracer()
 
 
 def record():  # Pour enregistrer le graphe dans le dossier courant
@@ -740,16 +819,24 @@ def lire_fichier():
 
     texte = texte.split("\n")
 
-    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=0, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Nb atome" + atom, font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=1, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Dégénéréscence", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=2, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=3, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Nom Config", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0, column=4, sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
+                                                                                                                 column=0,
+                                                                                                                 sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Nb atomes " + atom, font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(
+        row=0, column=1, sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Dégénéréscences", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(
+        row=0, column=2, sticky=NSEW)
+    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
+                                                                                                                  column=3,
+                                                                                                                  sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Nom Config", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
+                                                                                                                 column=4,
+                                                                                                                 sticky=NSEW)
 
     for i in range(nb_ligne):
         ligne = texte[i].split(" ; ")
         for j in range(5):
-            tkt.Label(fenetreFichier, text=ligne[j], font=("Arial", 11), borderwidth=1, relief="solid").grid(row=i+1,
+            tkt.Label(fenetreFichier, text=ligne[j], font=("Arial", 11), borderwidth=1, relief="solid").grid(row=i + 1,
                                                                                                              column=j,
                                                                                                              sticky=NSEW)
 
