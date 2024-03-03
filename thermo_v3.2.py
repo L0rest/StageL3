@@ -683,12 +683,17 @@ def record():  # Pour enregistrer le graphe dans le dossier courant
 
 
 def record_all():
-    global select
-    stock = select
-    for i in range(len(figs)):
-        select = i
-        record()
-    select = stock
+    try:
+        global select
+        stock = select
+        for i in range(len(figs)):
+            select = i
+            record()
+        select = stock
+        tkt.messagebox.showinfo("Enregistrement",
+                                "Tous les graphes ont été enregistrés dans le dossier courant avec succès")
+    except Exception:
+        tkt.messagebox.showerror("Enregistrement", "Une erreur est survenue lors de l'enregistrement des graphes")
 
 
 def recuperation():  # Fonction récupérant les valeurs à partir des données saisies
