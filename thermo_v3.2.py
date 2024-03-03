@@ -545,7 +545,7 @@ def tracer():  # Pour afficher le graphe sélectionné
     # Ouvrir une fenêtre pour afficher le graphe
     fenetreGraphe = tkt.Toplevel()
     fenetreGraphe.title("Graphes")
-    fenetreGraphe.geometry("800x600")
+    fenetreGraphe.geometry("900x700")
     canvas = FigureCanvasTkAgg(figs[select % len(figs)][0], master=fenetreGraphe)
     canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
     canvas.draw()
@@ -572,6 +572,9 @@ def tracer():  # Pour afficher le graphe sélectionné
         boutonGauche.pack()
         boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
         boutonDroite.pack()
+        cauall = tkt.Button(fenetreGraphe, text="Enregistrer tous les graphes", command=record_all, padx=5, pady=5,
+                            bd=3)
+        cauall.pack()
 
     def shift_right():
         global select
@@ -591,22 +594,27 @@ def tracer():  # Pour afficher le graphe sélectionné
         boutonGauche.pack()
         boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
         boutonDroite.pack()
+        cauall = tkt.Button(fenetreGraphe, text="Enregistrer tous les graphes", command=record_all, padx=5, pady=5,
+                            bd=3)
+        cauall.pack()
 
     boutonGauche = tkt.Button(fenetreGraphe, text="Précédent", command=shift_left, padx=5, pady=5, bd=3)
     boutonGauche.pack()
     boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
     boutonDroite.pack()
+    cauall = tkt.Button(fenetreGraphe, text="Enregistrer tous les graphes", command=record_all, padx=5, pady=5,
+                        bd=3)
+    cauall.pack()
 
     fenetreGraphe.mainloop()
 
 
-## &Kevin-debut&
 def tracer_isoth():  # Pour afficher le graphe sélectionné
     global select
     # Ouvrir une fenêtre pour afficher le graphe
     fenetreGraphe = tkt.Toplevel()
     fenetreGraphe.title("Graphes isothermes")
-    fenetreGraphe.geometry("800x600")
+    fenetreGraphe.geometry("900x700")
     canvas = FigureCanvasTkAgg(figs[select % len(figs)][0], master=fenetreGraphe)
     canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
     canvas.draw()
@@ -633,6 +641,9 @@ def tracer_isoth():  # Pour afficher le graphe sélectionné
         boutonGauche.pack()
         boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
         boutonDroite.pack()
+        cauall = tkt.Button(fenetreGraphe, text="Enregistrer tous les graphes", command=record_all, padx=5, pady=5,
+                            bd=3)
+        cauall.pack()
 
     def shift_right():
         global select
@@ -652,16 +663,18 @@ def tracer_isoth():  # Pour afficher le graphe sélectionné
         boutonGauche.pack()
         boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
         boutonDroite.pack()
+        cauall = tkt.Button(fenetreGraphe, text="Enregistrer tous les graphes", command=record_all, padx=5, pady=5,
+                            bd=3)
+        cauall.pack()
 
     boutonGauche = tkt.Button(fenetreGraphe, text="Précédent", command=shift_left, padx=5, pady=5, bd=3)
     boutonGauche.pack()
     boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
     boutonDroite.pack()
+    cauall = tkt.Button(fenetreGraphe, text="Enregistrer tous les graphes", command=record_all, padx=5, pady=5, bd=3)
+    cauall.pack()
 
     fenetreGraphe.mainloop()
-
-
-## &Kevin-fin&
 
 
 def record():  # Pour enregistrer le graphe dans le dossier courant
@@ -956,8 +969,7 @@ etape1 = tkt.Button(cadre2, text="Vérifier les données du fichier", command=li
 etape2 = tkt.Button(cadre2, text="Tracer le graphe!", command=trace, bd=3)
 """arrow1 = tkt.Button(cadre2, text="Graphe précédent", command=shift_left)
 arrow2 = tkt.Button(cadre2, text="Graphe suivant", command=shift_right)
-caught = tkt.Button(cadre2, text="Enregistrer le graphe dans le dossier courant", command=record)
-cauall = tkt.Button(cadre2, text="Enregistrer tous les graphes", command=record_all)"""
+caught = tkt.Button(cadre2, text="Enregistrer le graphe dans le dossier courant", command=record)"""
 
 titre_initiale.grid(row=0, column=0, sticky=S)
 temperature_initiale.grid(row=1, column=0, sticky=N)
