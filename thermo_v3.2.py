@@ -2,14 +2,14 @@ import tkinter as tkt
 from tkinter import *
 from tkinter import ttk
 
+from sympy import exp, nsolve, Symbol
+import matplotlib.pyplot as plt
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 
 import sys
 
 sys.path.extend(['../'])
-from sympy import exp, nsolve, Symbol
-import matplotlib.pyplot as plt
 
 HeaderString = """ Pour un cristal avec une espèce, on entre le fichier """
 
@@ -78,15 +78,14 @@ def convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atom="C", DFT=False, nrjREF=0.0
     if DFT:  # &Kevin-debut& dans cette version il faut avoir les énergies du bulk, de la mono-lacune, et du soluté seul dans le site le plus stable!! &Kevin-fin&
         bulk = False
         lac = False
-        ## &Kevin-debut&
         monosolute = False
-        ## &Kevin-fin&
+
         for i in range(len(E)):
             if (nbY[i] == 0) and (nbV[i] == 0):
                 Ebulk = E[i]
                 print(f"     nrj du bulk: {Ebulk} eV")
                 bulk = True
-            ## &Kevin-debut&
+
             if (nbY[i] == 1) and (nbV[i] == 0) and (monosolute is False):
                 indice_monosol = 0
                 for j in range(len(E)):
@@ -103,7 +102,7 @@ def convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atom="C", DFT=False, nrjREF=0.0
                     f"Le monosoluté le plus stable a été trouvé: en position {indice_monosol - 1}, nom : {deftype[indice_monosol]}")
                 print(f"     nrj du monosoluté le plus stable: {E_monosol} eV")
                 monosolute = True
-            ## &Kevin-fin&
+
             if (nbY[i] == 0) and (nbV[i] == 1):
                 print(f"La monolacune a été trouvée: en position {i + 1}")
                 Elac = E[i]
@@ -122,16 +121,13 @@ def convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atom="C", DFT=False, nrjREF=0.0
         num = []  # numero du défaut dans la liste lue utile pour après
         Etemp = []
         NRJgc = []
-        ## &Kevin-debut&
+
         for i in range(len(E)):  # Seul le bulk ne doit pas être inclus dans la liste des défauts
-            ## &Kevin-fin&
-            ## &Kevin-debut&
+
             Eref = energie_reference[atom]
             if not ((nbY[i] == 0) and (nbV[i] == 0)):
-                ## &Kevin-debut&
                 NRJb = E[i] + (float(nbV[i]) + float(nbY[i]) - 1.0) * Ebulk - nbV[i] * Elac - nbY[i] * E_monosol
-                ## &Kevin-fin&
-                ## &Kevin-fin&
+
                 Etemp.append(NRJb)
                 Egc_t = E[i] - (Ebulk) - (Eref)
                 NRJgc.append(Egc_t)
@@ -152,9 +148,9 @@ def convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atom="C", DFT=False, nrjREF=0.0
         nY = nbY.copy()
         nV = nbV.copy()
         g = deg.copy()
-        ## &Kevin-debut&
+
         EFv = 2.058  # Il faut définir l'énergie de la lacune
-        ## &Kevin-fin&
+
         Eb = E.copy()
         dtype = deftype.copy()
     print("nY, nV à la fin de convNRJtoBIND:", nY, nV)
@@ -242,10 +238,9 @@ def calcul_grand_canonique(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, conc, EFv, 
             amasnum = []
             while T < Tf:  # Boucle sur les T
                 Cv = exp(- EFv / (kB * T))
-                ## &Kevin-debut&
+
                 clusters = [g[i] * exp(- Eb[i] / (kB * T)) * (Yc ** nY[i]) * (Cv ** nV[i]) for i in range(len(nY))]
                 ##clusters.append(Cv)
-                ## &Kevin-fin&
 
                 # équations des concentrations nominales en fonction des concentrations des différents amas: eq1 pour oxy et eq2 pour lac
                 # en canonique (concentrations fixées), bizarre dans le cas de la lacune!
@@ -332,10 +327,9 @@ def calcul_grand_canonique_isoth(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, EFv, 
             amasnum = []
             for Ytot in concentration[4]:  # Boucle sur les concentrations (valeurs linéaires)
                 Cv = exp(- EFv / (kB * T))
-                ## &Kevin-debut&
+
                 clusters = [g[i] * exp(- Eb[i] / (kB * T)) * (Yc ** nY[i]) * (Cv ** nV[i]) for i in range(len(nY))]
                 ##clusters.append(Cv)
-                ## &Kevin-fin&
 
                 # équations des concentrations nominales en fonction des concentrations des différents amas: eq1 pour oxy et eq2 pour lac
                 # en canonique (concentrations fixées), bizarre dans le cas de la lacune!
@@ -407,10 +401,10 @@ def traceCONC(T, Ytot, atom, clusters, clusternum, dtype):
             ax1.plot(T, data, 'v--', lw=2, label=dtype[i])
         elif "V2" in dtype[i]:
             ax1.plot(T, data, 's-', lw=2, label=dtype[i])
-        ## &Kevin-debut&
+
         elif "V3" in dtype[i]:
             ax1.plot(T, data, '^-', lw=2, label=dtype[i])
-        ## &Kevin-fin&
+
         elif "V" + atom in dtype[i]:
             ax1.plot(T, data, 'd-', lw=2, label=dtype[i])
         else:
@@ -421,15 +415,15 @@ def traceCONC(T, Ytot, atom, clusters, clusternum, dtype):
     plt.title("Total [" + atom + "] = " + str(Ytot), loc='left')
     ax1.set_xlabel('Temperature (in K)')
     ax1.set_ylabel('Concentrations')
-    ## &Kevin-debut&
+
     plt.ylim([1e-13, 1])
     plt.xlim([T[0], T[-1]])
-    ## &Kevin-fin&
+
     figs.append([fig1, atom, Ytot])  # Une astuce pour faire passer atom et Ytot dans les fonctions trace() et record()!
 
 
 # ========================================================================
-## &Kevin-debut&
+
 def traceCONC_isoth(T, Ytot, atom, clusters, clusternum, dtype):
     global figs
     fig1, ax1 = plt.subplots()
@@ -446,10 +440,10 @@ def traceCONC_isoth(T, Ytot, atom, clusters, clusternum, dtype):
             ax1.plot(Ytot, data, 'v--', lw=2, label=dtype[i])
         elif "V2" in dtype[i]:
             ax1.plot(Ytot, data, 's-', lw=2, label=dtype[i])
-        ## &Kevin-debut&
+
         elif "V3" in dtype[i]:
             ax1.plot(Ytot, data, '^-', lw=2, label=dtype[i])
-        ## &Kevin-fin&
+
         elif "V" + atom in dtype[i]:
             ax1.plot(Ytot, data, 'd-', lw=2, label=dtype[i])
         else:
@@ -466,8 +460,6 @@ def traceCONC_isoth(T, Ytot, atom, clusters, clusternum, dtype):
     figs.append([fig1, atom, T])  # Une astuce pour faire passer atom et T dans les fonctions trace() et record()!
 
 
-## &Kevin-fin&
-
 """ Ti: température initiale
     Tf: température finale
     dT: le pas de calcul
@@ -479,7 +471,7 @@ def traceCONC_isoth(T, Ytot, atom, clusters, clusternum, dtype):
 # ========================================================================
 
 def trace():  # Affichage des fonctions
-    ## &Kevin-debut&
+
     ## Changement de tous les incréments de data, du fait de l'ajout des conditions v7 et vg
     global select
     data = recuperation()  # Une ruse pour transmettre plusieurs données de fonction en fonction sans provoquer de bug!
@@ -509,10 +501,9 @@ def trace():  # Affichage des fonctions
     print("degré:", nbY)
     print("E:", E)
     print("deftype:", deftype)
-    ## &Kevin-fin&
-    ## &Kevin-debut&
+
     nat = x * y * z * nb_atome_maille  # Maintenant, c'est adaptatif au nombre d'atomes par maille que l'on entre
-    ## &Kevin-fin&
+
     # Attention, il ne faut pas oublier d'inverser la lecture des nB et nV
     if debug:
         DFTnrj = False
@@ -520,15 +511,13 @@ def trace():  # Affichage des fonctions
         nameoutput = "C_amas_diff_T_C_canonique_C_canonique_V_gc_avc_V2.dat"
         EoREF = 0.
     else:
-        namefile = "data_" + cristal + "_" + atome
         nameoutput = atome + "_test.dat"
         EoREF = energie_reference[atome]  # énergie de l'atome donné
     conc = concentration[cas]  # 1 = final, 2 = test, 3 = fixe
 
-    nbY, nbV, deg, E, deftype, charge = lecture(namefile, debug, oxyde=False)
+    nbY, nbV, deg, E, deftype, charge = lecture(fichier, debug, oxyde=False)
     nY, nV, g, Eb, dtype, EFv = convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atome, DFTnrj, nrjREF=EoREF)
-    print(namefile)
-    ## &Kevin-debut&
+
     if isoT_flag:
         calcul_grand_canonique_isoth(nY, nV, g, Eb, dtype, charge, mini, maxi, pas, EFv, nameoutput, canonique, atome,
                                      oxyde_flag)
@@ -537,7 +526,6 @@ def trace():  # Affichage des fonctions
         calcul_grand_canonique(nY, nV, g, Eb, dtype, charge, mini, maxi, pas, conc, EFv, nameoutput, canonique, atome,
                                oxyde_flag)
         tracer()
-    ## &Kevin-fin&
 
 
 def tracer():  # Pour afficher le graphe sélectionné
@@ -703,9 +691,9 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
     v4 = int(dim_x.get())
     v5 = int(dim_y.get())
     v6 = int(dim_z.get())
-    ## &Kevin-debut&
+
     v7 = int(nb_atom_maille.get())
-    ## &Kevin-fin&
+
     va = selection_y.get()
     vb = selection_c.get()
     vc = selection_r.get()
@@ -724,7 +712,7 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
         tkt.messagebox.showinfo("Températures", "Les valeurs ont été automatiquement inversées.")
     if v3 <= 0:
         tkt.messagebox.showerror("Températures", "Le pas de calcul doit être strictement positif !")
-    ## &Kevin-debut&
+
     if v7 <= 0:
         tkt.messagebox.showerror("Nombre atomes par maille",
                                  "Le nombre d'atomes par maille doit être strictement positif !")
@@ -753,10 +741,10 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
 
     if vc == "Be: Béryllium":
         vc = "Be"
-    ## &Kevin-debut&
+
     elif vc == "Ti: Titane":
         vc = "Ti"
-    ## &Kevin-fin&
+
     else:
         tkt.messagebox.showwarning("Atomes",
                                    "Le cristal sélectionné est incorrect; le Béryllium est sélectionné par défaut.")
@@ -788,7 +776,7 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
         vf = False
         tkt.messagebox.showwarning("énergies de liaison",
                                    "L'option sélectionnée est incorrecte; les énergies de liaison sont par défaut désactivées.")
-    ## &Kevin-debut&
+
     if vg == "Isotherme":
         vg = True
     elif vg == "Iso-concentration":
@@ -797,31 +785,30 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
         vg = True
         tkt.messagebox.showwarning("Mode de graphiques",
                                    "L'option sélectionnée est incorrecte; les graphes sont par défaut isothermes.")
-    ## &Kevin-fin&
-    ## &Kevin-debut&
+
     nbY, nbV, deg, E, deftype, charge = [], [], [], [], [], []
     if va in ["H", "C", "N", "O"] and vb in ["GCy", "GCvy"] and vc == ["Ti"] and vd in [1, 2, 3] and v3 > 0:
         nbY, nbV, deg, E, deftype, charge = lecture("data_Ti_" + va, False, False)
 
     # return [v1, v2, v3, v4, v5, v6, va, vb, vc, vd, ve, vf, nbY, nbV, deg, E, deftype, charge, debug] ##Ce qu'il y avait au début
     return [v1, v2, v3, v4, v5, v6, v7, va, vb, vc, vd, ve, vf, vg, nbY, nbV, deg, E, deftype, charge, debug]
-    ## &Kevin-fin&
 
 
 def lire_fichier():
     global select
+    global fichier
 
     data = recuperation()
     crystal = data[9]
     atom = data[7]
 
     try:
-        fichier = open("data_" + crystal + "_" + atom, "r")
-        texte = fichier.read()
-        fichier.close()
-        fichier = open("data_" + crystal + "_" + atom, "r")
-        nb_ligne = len(fichier.readlines())
-        fichier.close()
+        file = open(fichier)
+        texte = file.read()
+        file.close()
+        file = open(fichier)
+        nb_ligne = len(file.readlines())
+        file.close()
         texte = texte.replace(" ", " ; ")
     except FileNotFoundError:
         tkt.messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
@@ -837,24 +824,24 @@ def lire_fichier():
 
     texte = texte.split("\n")
 
-    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
+    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
                                                                                                                  column=0,
                                                                                                                  sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Nb atomes " + atom, font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(
+    tkt.Label(fenetreFichier, text="Nb atomes " + atom, font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
         row=0, column=1, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Dégénéréscences", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(
+    tkt.Label(fenetreFichier, text="Dégénéréscences", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
         row=0, column=2, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
+    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
                                                                                                                   column=3,
                                                                                                                   sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Nom Config", font=("Arial", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
+    tkt.Label(fenetreFichier, text="Nom Config", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
                                                                                                                  column=4,
                                                                                                                  sticky=NSEW)
 
     for i in range(nb_ligne):
         ligne = texte[i].split(" ; ")
         for j in range(5):
-            tkt.Label(fenetreFichier, text=ligne[j], font=("Arial", 11), borderwidth=1, relief="solid").grid(row=i + 1,
+            tkt.Label(fenetreFichier, text=ligne[j], font=("Helvetica", 11), borderwidth=1, relief="solid").grid(row=i + 1,
                                                                                                              column=j,
                                                                                                              sticky=NSEW)
 
@@ -862,8 +849,20 @@ def lire_fichier():
     fenetreFichier.mainloop()
 
 
+def select_fichier():
+    global select
+    global fichier
+    fichier = tkt.filedialog.askopenfilename(title="Ouvrir un fichier")
+    if fichier:
+        # Get file name only
+        textSelectData.config(text="Fichier sélectionné : " + fichier.split("/")[-1])
+        print(fichier)
+
+
+
+fichier = None # Pour stocker le fichier de données sélectionné
 figs = []  # Pour stocker notre série de graphes
-select = 0  # Cette variable nous era utile pour faire défiler les graphes!
+select = 0  # Cette variable nous sera utile pour faire défiler les graphes!
 fenetre = Tk()
 fenetre.title("Calcul des énergies")
 fenetre.geometry("1300x750")
@@ -878,7 +877,7 @@ my_canvas.configure(yscrollcommand = y_scrollbar.set)
 my_canvas.bind("<Configure>", lambda e: my_canvas.config(scrollregion= my_canvas.bbox(ALL)))"""
 
 cadre1 = tkt.LabelFrame(fenetre, text="Paramétrage des variations de température, en Kelvin", padx=20, pady=20,
-                        font=("Arial", 10), bd=5, relief="groove")
+                        font=("Helvetica", 10), bd=5, relief="groove")
 cadre1.rowconfigure(0, weight=1)
 cadre1.rowconfigure(1, weight=1)
 cadre1.rowconfigure(2, weight=1)
@@ -890,30 +889,29 @@ cadre1.columnconfigure(3, weight=1)
 cadre1.columnconfigure(4, weight=1)
 cadre1.grid(row=0, column=0, sticky=NSEW)
 
-temperature_initiale = tkt.Entry(cadre1, width=5, font=("Arial", 12), justify="center")
+temperature_initiale = tkt.Entry(cadre1, width=5, font=("Helvetica", 12), justify="center")
 temperature_initiale.insert(0, "500")
 titre_initiale = tkt.Label(cadre1, text="Entrez la température initiale :", font=("Helvetica", 11))
-temperature_finale = tkt.Entry(cadre1, width=5, font=("Arial", 12), justify="center")
+temperature_finale = tkt.Entry(cadre1, width=5, font=("Helvetica", 12), justify="center")
 temperature_finale.insert(0, "1000")
-titre_finale = tkt.Label(cadre1, text="Entrez la température maximale :", font=("Arial", 11))
-temperature_pas = tkt.Entry(cadre1, width=5, font=("Arial", 12), justify="center")
+titre_finale = tkt.Label(cadre1, text="Entrez la température maximale :", font=("Helvetica", 11))
+temperature_pas = tkt.Entry(cadre1, width=5, font=("Helvetica", 12), justify="center")
 temperature_pas.insert(0, "100")
-titre_pas = tkt.Label(cadre1, text="Entrez le pas de calcul :", font=("Arial", 11))
+titre_pas = tkt.Label(cadre1, text="Entrez le pas de calcul :", font=("Helvetica", 11))
 stock_dim = tkt.Canvas(cadre1)
-dim_x = tkt.Entry(stock_dim, width=2, font=("Arial", 12), justify="center")
-dim_y = tkt.Entry(stock_dim, width=2, font=("Arial", 12), justify="center")
-dim_z = tkt.Entry(stock_dim, width=2, font=("Arial", 12), justify="center")
+dim_x = tkt.Entry(stock_dim, width=2, font=("Helvetica", 12), justify="center")
+dim_y = tkt.Entry(stock_dim, width=2, font=("Helvetica", 12), justify="center")
+dim_z = tkt.Entry(stock_dim, width=2, font=("Helvetica", 12), justify="center")
 dim_x.insert(0, "1")
 dim_y.insert(0, "1")
 dim_z.insert(0, "1")
-titre_dim = tkt.Label(cadre1, text="Entrez les dimensions x, y et z du cristal :", font=("Arial", 11))
-## &Kevin-debut&
-nb_atom_maille = tkt.Entry(cadre1, width=2, font=("Arial", 12), justify="center")
-titre_atom = tkt.Label(cadre1, text="Entrez le nombre d'atomes par maille :", font=("Arial", 11))
-nb_atom_maille.insert(0, "1")
-## &Kevin-fin&
+titre_dim = tkt.Label(cadre1, text="Entrez les dimensions x, y et z du cristal :", font=("Helvetica", 11))
 
-cadre2 = tkt.LabelFrame(fenetre, text="Sélection des atomes", padx=20, pady=20, font=("Arial", 10), bd=5,
+nb_atom_maille = tkt.Entry(cadre1, width=2, font=("Helvetica", 12), justify="center")
+titre_atom = tkt.Label(cadre1, text="Entrez le nombre d'atomes par maille :", font=("Helvetica", 11))
+nb_atom_maille.insert(0, "1")
+
+cadre2 = tkt.LabelFrame(fenetre, text="Sélection des atomes", padx=20, pady=20, font=("Helvetica", 10), bd=5,
                         relief="groove")
 cadre2.grid(row=1, column=0, sticky="nsew")
 cadre2.rowconfigure(0, weight=1)
@@ -929,52 +927,50 @@ cadre2.columnconfigure(2, weight=1)
 cadre2.columnconfigure(3, weight=1)
 cadre2.columnconfigure(4, weight=1)
 
-selection_atome = tkt.Label(cadre2, text="Molécule à faire pénétrer dans le cristal :", font=("Arial", 11))
+selection_atome = tkt.Label(cadre2, text="Molécule à faire pénétrer dans le cristal :", font=("Helvetica", 11))
 atomes_y = ['H: Dihydrogène', 'C: Carbone allotrope diamant', 'N: Diazote', 'O: Dioxygène',
             'Dihydrogène, version de débugage']
-selection_y = ttk.Combobox(cadre2, values=atomes_y, justify="center", state="readonly", font=("Arial", 11))
+selection_y = ttk.Combobox(cadre2, values=atomes_y, justify="center", state="readonly", font=("Helvetica", 11))
 selection_y.current(0)
 
-selection_cristal = tkt.Label(cadre2, text="Sélectionnez le cristal :", font=("Arial", 11))
-## &Kevin-debut&
+selection_cristal = tkt.Label(cadre2, text="Sélectionnez le cristal :", font=("Helvetica", 11))
+
 atomes_c = ['Be: Béryllium', 'Ti: Titane']
-## &Kevin-fin&
-selection_r = ttk.Combobox(cadre2, values=atomes_c, justify="center", state="readonly", font=("Arial", 11))
+
+selection_r = ttk.Combobox(cadre2, values=atomes_c, justify="center", state="readonly", font=("Helvetica", 11))
 selection_r.current(0)
 
-selection_canonique = tkt.Label(cadre2, text="Ensemble canonique :", font=("Arial", 11))
+selection_canonique = tkt.Label(cadre2, text="Ensemble canonique :", font=("Helvetica", 11))
 canoniques = ['GCy: lacunaire uniquement', 'GCvy: lacunaire et interstitiel']
-selection_c = ttk.Combobox(cadre2, values=canoniques, justify="center", state="readonly", font=("Arial", 11))
+selection_c = ttk.Combobox(cadre2, values=canoniques, justify="center", state="readonly", font=("Helvetica", 11))
 selection_c.current(0)
 
-selection_oxyde = tkt.Label(cadre2, text="Charge des atomes :", font=("Arial", 11))
+selection_oxyde = tkt.Label(cadre2, text="Charge des atomes :", font=("Helvetica", 11))
 oxydes = ['Oxydes', 'Non chargés']
-selection_x = ttk.Combobox(cadre2, values=oxydes, justify="center", state="readonly", font=("Arial", 11))
+selection_x = ttk.Combobox(cadre2, values=oxydes, justify="center", state="readonly", font=("Helvetica", 11))
 selection_x.current(0)
 
-selection_conc = tkt.Label(cadre2, text="Intervalle des valeurs de concentration :", font=("Arial", 11))
+selection_conc = tkt.Label(cadre2, text="Intervalle des valeurs de concentration :", font=("Helvetica", 11))
 concentrations = ['Exponentiel borné', 'Test unique', 'Valeurs linéaires']
-selection_o = ttk.Combobox(cadre2, values=concentrations, justify="center", state="readonly", font=("Arial", 11))
+selection_o = ttk.Combobox(cadre2, values=concentrations, justify="center", state="readonly", font=("Helvetica", 11))
 selection_o.current(0)
 
-selection_dft = tkt.Label(cadre2, text="Mode de traitement des énergies de liaison :", font=("Arial", 11))
+selection_dft = tkt.Label(cadre2, text="Mode de traitement des énergies de liaison :", font=("Helvetica", 11))
 debugs = ['DFT', 'Energy Binding']
-selection_d = ttk.Combobox(cadre2, values=debugs, justify="center", state="readonly", font=("Arial", 11))
+selection_d = ttk.Combobox(cadre2, values=debugs, justify="center", state="readonly", font=("Helvetica", 11))
 selection_d.current(0)
 
-## &Kevin-debut&
-selection_type_graphe = tkt.Label(cadre2, text="Mode de représentation des calculs :", font=("Arial", 11))
+selection_type_graphe = tkt.Label(cadre2, text="Mode de représentation des calculs :", font=("Helvetica", 11))
 types_g = ['Isotherme', 'Iso-concentration']
-selection_type_g = ttk.Combobox(cadre2, values=types_g, justify="center", state="readonly", font=("Arial", 11))
+selection_type_g = ttk.Combobox(cadre2, values=types_g, justify="center", state="readonly", font=("Helvetica", 11))
 selection_type_g.current(0)
-## &Kevin-fin&
 
+verifData = tkt.Button(cadre2, text="Vérifier les données du fichier", command=lire_fichier, bd=3)
+selectData = tkt.Button(cadre2, text="Sélectionner le fichier de données", command=select_fichier, bd=3)
+textSelectData = tkt.Label(cadre2, text="Aucun fichier sélectionné", font=("Helvetica", 11))
+drawGraph = tkt.Button(cadre2, text="Tracer le graphe!", command=trace, bd=3)
 
-etape1 = tkt.Button(cadre2, text="Vérifier les données du fichier", command=lire_fichier, bd=3)
-etape2 = tkt.Button(cadre2, text="Tracer le graphe!", command=trace, bd=3)
-"""arrow1 = tkt.Button(cadre2, text="Graphe précédent", command=shift_left)
-arrow2 = tkt.Button(cadre2, text="Graphe suivant", command=shift_right)
-caught = tkt.Button(cadre2, text="Enregistrer le graphe dans le dossier courant", command=record)"""
+"""caught = tkt.Button(cadre2, text="Enregistrer le graphe dans le dossier courant", command=record)"""
 
 titre_initiale.grid(row=0, column=0, sticky=S)
 temperature_initiale.grid(row=1, column=0, sticky=N)
@@ -987,10 +983,9 @@ dim_x.grid(row=0, column=0, sticky=NSEW)
 dim_y.grid(row=0, column=1, sticky=NSEW)
 dim_z.grid(row=0, column=2, sticky=NSEW)
 stock_dim.grid(row=3, column=1, sticky=N)
-## &Kevin-debut&
+
 titre_atom.grid(row=2, column=3, sticky=S)
 nb_atom_maille.grid(row=3, column=3, sticky=N)
-## &Kevin-fin&
 
 selection_atome.grid(row=0, column=0, sticky=NSEW)
 selection_y.grid(row=0, column=1, sticky=NSEW)
@@ -1006,8 +1001,10 @@ selection_dft.grid(row=2, column=3, sticky=NSEW)
 selection_d.grid(row=2, column=4, sticky=NSEW)
 selection_type_graphe.grid(row=3, column=3, sticky=NSEW)
 selection_type_g.grid(row=3, column=4, sticky=NSEW)
-etape1.grid(row=5, column=2, sticky=NSEW)
-etape2.grid(row=6, column=2, sticky=NSEW)
+verifData.grid(row=5, column=2, sticky=NSEW)
+selectData.grid(row=5, column=0, sticky=NS)
+textSelectData.grid(row=6, column=0, sticky=NSEW)
+drawGraph.grid(row=6, column=2, sticky=NSEW)
 
 texte0 = tkt.Label(fenetre,
                    text="Version: 0.3.1 du 14/12/2023 par Kevin Gautier \n Versions précédentes: 0.2 du 06/05/2023 par Gabriel Faraut \n 0.1 du 25/06/2021 par Damien Connétable \n E_mail: damien.connetable@ensiacet.fr \n CNRS CIRIMAT")
