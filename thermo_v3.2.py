@@ -518,8 +518,11 @@ def trace():  # Affichage des fonctions
         EoREF = energie_reference[atome]  # énergie de l'atome donné
     conc = concentration[cas]  # 1 = final, 2 = test, 3 = fixe
 
-    nbY, nbV, deg, E, deftype, charge = lecture(fichier, debug, oxyde=False)
-    nY, nV, g, Eb, dtype, EFv = convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atome, DFTnrj, nrjREF=EoREF)
+    try:
+        nbY, nbV, deg, E, deftype, charge = lecture(fichier, debug, oxyde=False)
+        nY, nV, g, Eb, dtype, EFv = convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atome, DFTnrj, nrjREF=EoREF)
+    except Exception:
+        return
 
     if isoT_flag:
         calcul_grand_canonique_isoth(nY, nV, g, Eb, dtype, charge, mini, maxi, pas, EFv, nameoutput, canonique, atome,
@@ -812,7 +815,7 @@ def lire_fichier():
         nb_ligne = len(file.readlines())
         file.close()
         texte = texte.replace(" ", " ; ")
-    except FileNotFoundError:
+    except (FileNotFoundError, TypeError):
         tkt.messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
         return
 
