@@ -904,7 +904,7 @@ cadre1.columnconfigure(4, weight=1)
 cadre1.grid(row=0, column=0, sticky=NSEW)
 
 temperature_initiale = tkt.Entry(cadre1, width=5, font=("Helvetica", 12), justify="center")
-temperature_initiale.insert(0, "500")
+temperature_initiale.insert(0, "300")
 titre_initiale = tkt.Label(cadre1, text="Entrez la température initiale :", font=("Helvetica", 11))
 temperature_finale = tkt.Entry(cadre1, width=5, font=("Helvetica", 12), justify="center")
 temperature_finale.insert(0, "1000")
@@ -916,14 +916,14 @@ stock_dim = tkt.Canvas(cadre1)
 dim_x = tkt.Entry(stock_dim, width=2, font=("Helvetica", 12), justify="center")
 dim_y = tkt.Entry(stock_dim, width=2, font=("Helvetica", 12), justify="center")
 dim_z = tkt.Entry(stock_dim, width=2, font=("Helvetica", 12), justify="center")
-dim_x.insert(0, "1")
-dim_y.insert(0, "1")
-dim_z.insert(0, "1")
+dim_x.insert(0, "4")
+dim_y.insert(0, "4")
+dim_z.insert(0, "3")
 titre_dim = tkt.Label(cadre1, text="Entrez les dimensions x, y et z du cristal :", font=("Helvetica", 11))
 
 nb_atom_maille = tkt.Entry(cadre1, width=2, font=("Helvetica", 12), justify="center")
 titre_atom = tkt.Label(cadre1, text="Entrez le nombre d'atomes par maille :", font=("Helvetica", 11))
-nb_atom_maille.insert(0, "1")
+nb_atom_maille.insert(0, "2")
 
 cadre2 = tkt.LabelFrame(fenetre, text="Sélection des atomes", padx=20, pady=20, font=("Helvetica", 10), bd=5,
                         relief="groove")
@@ -962,7 +962,7 @@ selection_c.current(0)
 selection_oxyde = tkt.Label(cadre2, text="Charge des atomes :", font=("Helvetica", 11))
 oxydes = ['Oxydes', 'Non chargés']
 selection_x = ttk.Combobox(cadre2, values=oxydes, justify="center", state="readonly", font=("Helvetica", 11))
-selection_x.current(0)
+selection_x.current(1)
 
 selection_conc = tkt.Label(cadre2, text="Intervalle des valeurs de concentration :", font=("Helvetica", 11))
 concentrations = ['Exponentiel borné', 'Test unique', 'Valeurs linéaires']
