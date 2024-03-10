@@ -1,6 +1,6 @@
 import tkinter as tkt
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 from sympy import exp, nsolve, Symbol
 import matplotlib.pyplot as plt
