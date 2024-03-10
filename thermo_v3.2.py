@@ -49,24 +49,27 @@ def lecture(nomfile, debug=False, oxyde=False):  # Lecture des données d'entré
     deftype = []  # Contient le nom de l'amas
     charge = []  # contient la charge de l'amas
 
-    with open(nomfile, 'r', encoding='utf8') as inp:
-        for line in inp:
-            data = line.split()
-            if debug:  # Attention dans les données initiales nbV et nbY sont interverties dans le fichier data_test !!!!
-                nbY.append(int(data[0]))
-                nbV.append(int(data[1]))
-            else:
-                nbV.append(int(data[0]))
-                nbY.append(int(data[1]))
-            deg.append(int(data[2]))
-            E.append(float(data[3]))
-            if oxyde:
-                charge.append(float(data[4]))
-                deftype.append(str(data[5]))
-            else:
-                deftype.append(str(data[4]))
-    print("Il y a", len(E), "défauts")
-    return nbY, nbV, deg, E, deftype, charge
+    try:
+        with open(nomfile, 'r', encoding='utf8') as inp:
+            for line in inp:
+                data = line.split()
+                if debug:  # Attention dans les données initiales nbV et nbY sont interverties dans le fichier data_test !!!!
+                    nbY.append(int(data[0]))
+                    nbV.append(int(data[1]))
+                else:
+                    nbV.append(int(data[0]))
+                    nbY.append(int(data[1]))
+                deg.append(int(data[2]))
+                E.append(float(data[3]))
+                if oxyde:
+                    charge.append(float(data[4]))
+                    deftype.append(str(data[5]))
+                else:
+                    deftype.append(str(data[4]))
+        print("Il y a", len(E), "défauts")
+        return nbY, nbV, deg, E, deftype, charge
+    except Exception:
+        tkt.messagebox.showerror("Erreur", "Le fichier n'a pas été trouvé ou n'est pas lisible!")
 
 
 # =====================================================================
@@ -799,7 +802,6 @@ def lire_fichier():
     global fichier
 
     data = recuperation()
-    crystal = data[9]
     atom = data[7]
 
     try:
@@ -814,6 +816,10 @@ def lire_fichier():
         tkt.messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
         return
 
+    texte = texte.split("\n")
+    if any(";" not in ligne for ligne in texte) or any(";" in ligne for ligne in texte if ligne.count(";") != 4):
+        tkt.messagebox.showerror("Fichier", "Le fichier demandé n'est pas bien formaté!")
+        return
     # Ouvrir une fenêtre pour afficher les données du fichier
     fenetreFichier = tkt.Toplevel()
     fenetreFichier.title("Fichier")
@@ -822,30 +828,37 @@ def lire_fichier():
     for i in range(5):
         fenetreFichier.columnconfigure(i, weight=1)
 
-    texte = texte.split("\n")
-
-    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
-                                                                                                                 column=0,
-                                                                                                                 sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Nb atomes " + atom, font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
+    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Helvetica", 12, "bold"), borderwidth=1,
+              relief="solid").grid(
+        row=0,
+        column=0,
+        sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Nb atomes " + atom, font=("Helvetica", 12, "bold"), borderwidth=1,
+              relief="solid").grid(
         row=0, column=1, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Dégénéréscences", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
+    tkt.Label(fenetreFichier, text="Dégénéréscences", font=("Helvetica", 12, "bold"), borderwidth=1,
+              relief="solid").grid(
         row=0, column=2, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
-                                                                                                                  column=3,
-                                                                                                                  sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Nom Config", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(row=0,
-                                                                                                                 column=4,
-                                                                                                                 sticky=NSEW)
+    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Helvetica", 12, "bold"), borderwidth=1,
+              relief="solid").grid(
+        row=0,
+        column=3,
+        sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Nom Config", font=("Helvetica", 12, "bold"), borderwidth=1,
+              relief="solid").grid(
+        row=0,
+        column=4,
+        sticky=NSEW)
 
     for i in range(nb_ligne):
         ligne = texte[i].split(" ; ")
         for j in range(5):
-            tkt.Label(fenetreFichier, text=ligne[j], font=("Helvetica", 11), borderwidth=1, relief="solid").grid(row=i + 1,
-                                                                                                             column=j,
-                                                                                                             sticky=NSEW)
+            tkt.Label(fenetreFichier, text=ligne[j], font=("Helvetica", 11), borderwidth=1, relief="solid").grid(
+                row=i + 1,
+                column=j,
+                sticky=NSEW)
 
-    fenetreFichier.geometry("800x" + str(50 * nb_ligne))
+    fenetreFichier.geometry("800x" + str(50 * (nb_ligne + 1)))
     fenetreFichier.mainloop()
 
 
@@ -856,11 +869,9 @@ def select_fichier():
     if fichier:
         # Get file name only
         textSelectData.config(text="Fichier sélectionné : " + fichier.split("/")[-1])
-        print(fichier)
 
 
-
-fichier = None # Pour stocker le fichier de données sélectionné
+fichier = None  # Pour stocker le fichier de données sélectionné
 figs = []  # Pour stocker notre série de graphes
 select = 0  # Cette variable nous sera utile pour faire défiler les graphes!
 fenetre = Tk()
