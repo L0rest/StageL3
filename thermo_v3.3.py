@@ -1,13 +1,11 @@
+import sys
 import tkinter as tkt
-from tkinter import *
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, NSEW, N, S, NS
 
-from sympy import exp, nsolve, Symbol
 import matplotlib.pyplot as plt
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
-
-import sys
+from sympy import exp, nsolve, Symbol
 
 sys.path.extend(['../'])
 
@@ -20,8 +18,8 @@ HeaderString = """ Pour un cristal avec une espèce, on entre le fichier """
 # =====================================================================
 # Constantes utiles:
 kB = 8.6173303e-5  # en eV/K
-energie_reference = {'H': -6.76824288 / 2., 'C': -18.19943489 / 2., 'O': -9.87320241 / 2.,
-                     'N': -16.64877294 / 2., 'B': -80.45763600 / 12.}
+energie_reference = {'H': -6.76824288 / 2., 'C': -18.19943489 / 2., 'O': -9.87320241 / 2., 'N': -16.64877294 / 2.,
+                     'B': -80.45763600 / 12.}
 
 # Plusieurs choix dans le calcul de la concentration:
 concentration = {1: [10 ** (t / 10) for t in range(-60, 0)], 2: [1e-8],
@@ -30,22 +28,25 @@ concentration = {1: [10 ** (t / 10) for t in range(-60, 0)], 2: [1e-8],
                  4: [1e-13, 5e-12, 1e-12, 5e-11, 1e-11, 5e-10, 1e-9, 5e-9, 1e-8, 5e-8, 1e-7, 5e-7, 1e-6, 5e-6, 1e-5,
                      5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1]}
 
-""" Lecture des données d'entrée du code:
-    nbY    : Nombre d'atome interstitiels dans les différents amas
-    nbV    : Nombre de lacunes dans les différents amas
-    E      : énergies de liaison ou DFT
-    deg    : Contient le nom de l'amas = la multiplicité des configurations, dégénérescence des amas
-    deftype: Contient le nom de l'amas
-    oxyde  : Permet de lui dire si c'est un oxyde, et donc on doit lire les charges
-    chge   : Contient la charge de l'amas
-    """
+"""
+Lecture des données d'entrée du code:
+nbY    : Nombre d'atome interstitiels dans les différents amas
+nbV    : Nombre de lacunes dans les différents amas
+E      : énergies de liaison ou DFT
+deg    : Contient le nom de l'amas = la multiplicité des
+         configurations, dégénérescence des amas
+deftype: Contient le nom de l'amas
+oxyde  : Permet de lui dire si c'est un oxyde, et donc on doit lire
+         les charges
+chge   : Contient la charge de l'amas
+"""
 
 
 def lecture(nomfile, debug=False, oxyde=False):  # Lecture des données d'entrée du code
     nbY = []  # Nombre d'atomes interstitiels dans les différents amas
     nbV = []  # Nombre de lacunes
-    E = []  # énergies de liaison ou DFT
-    deg = []  # Contient le nombre de cas identiques = la multiplicité des configurations, dégénérescence des amas
+    E = []  # Énergies de liaison ou DFT
+    deg = []  # Le nombre de cas identiques = multiplicité des configurations, dégénérescence des amas
     deftype = []  # Contient le nom de l'amas
     charge = []  # contient la charge de l'amas
 
@@ -69,7 +70,7 @@ def lecture(nomfile, debug=False, oxyde=False):  # Lecture des données d'entré
         print("Il y a", len(E), "défauts")
         return nbY, nbV, deg, E, deftype, charge
     except Exception:
-        tkt.messagebox.showerror("Erreur", "Le fichier n'a pas été trouvé ou n'est pas lisible!")
+        messagebox.showerror("Erreur", "Le fichier n'a pas été trouvé ou n'est pas lisible!")
 
 
 # =====================================================================
@@ -94,11 +95,11 @@ def convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atom="C", DFT=False, nrjREF=0.0
                 for j in range(len(E)):
                     if (nbY[j] == 1) and (nbV[j] == 0) and (j != i):
                         if E[j] < E[i]:
-                            ## Le monosoluté j est plus stable que le monosoluté i !
+                            # Le monosoluté j est plus stable que le monosoluté i !
                             E_monosol = E[j]
                             indice_monosol = j
                         else:
-                            ## Le monosoluté i est plus stble que la monosoluté j !
+                            # Le monosoluté i est plus stble que la monosoluté j !
                             E_monosol = E[i]
                             indice_monosol = i
                 print(
@@ -144,8 +145,7 @@ def convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atom="C", DFT=False, nrjREF=0.0
         Edft = [E[num[i]] for i in range(len(Etemp))]
         for i in range(len(Etemp)):
             print(f"nbY = {nY[i]} nbV = {nV[i]} g = {g[i]}, numero {i + 1} ",
-                  f"Edft = {Edft[i]}, Eb = {Eb[i]}, Egc = {Egc[i]} ",
-                  f"Défaut: {dtype[i]}")
+                  f"Edft = {Edft[i]}, Eb = {Eb[i]}, Egc = {Egc[i]} ", f"Défaut: {dtype[i]}")
     else:
         print('Ici on lit les énergies de liaison')
         nY = nbY.copy()
@@ -160,7 +160,7 @@ def convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atom="C", DFT=False, nrjREF=0.0
     return nY, nV, g, Eb, dtype, EFv
 
 
-###============================================================
+# ============================================================
 
 """ Calcul des énergies de formation des amas """
 
@@ -190,7 +190,7 @@ def calculpotentielv1(nY, nV, Eb, dtype, EFv, fileout, muMIN=-12, muMAX=-3, atom
             muY += 0.01
 
 
-###============================================================
+# ============================================================
 
 """ nY: nombre d'atomes interstitiels
     nV: nombre de lacunes
@@ -206,8 +206,7 @@ def calculpotentielv1(nY, nV, Eb, dtype, EFv, fileout, muMIN=-12, muMAX=-3, atom
 """
 
 
-## &Kevin-debtu&
-## Il y a maintenant 2 fonctions similaires "calcul_grand_canonique", une qui permet de calculer en isotherme (calcul_grand_canonique_isoth), l'autre en isoconcentration (calcul_grand_canonique)
+# Il y a maintenant 2 fonctions similaires "calcul_grand_canonique", une qui permet de calculer en isotherme (calcul_grand_canonique_isoth), l'autre en isoconcentration (calcul_grand_canonique)
 def calcul_grand_canonique(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, conc, EFv, fileout, ensemble, atom, oxyde):
     global figs
     figs = []  # On réinitialise la liste des graphes, au cas où on lance les tracés plusieurs fois de suite!
@@ -243,7 +242,7 @@ def calcul_grand_canonique(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, conc, EFv, 
                 Cv = exp(- EFv / (kB * T))
 
                 clusters = [g[i] * exp(- Eb[i] / (kB * T)) * (Yc ** nY[i]) * (Cv ** nV[i]) for i in range(len(nY))]
-                ##clusters.append(Cv)
+                # clusters.append(Cv)
 
                 # équations des concentrations nominales en fonction des concentrations des différents amas: eq1 pour oxy et eq2 pour lac
                 # en canonique (concentrations fixées), bizarre dans le cas de la lacune!
@@ -298,7 +297,7 @@ def calcul_grand_canonique(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, conc, EFv, 
 
 
 def calcul_grand_canonique_isoth(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, EFv, fileout, ensemble, atom, oxyde):
-    ## Cette fonction fait l'inverse de la première : elle boucle d'abord sur les températures, puis sur les concentrations
+    # Cette fonction fait l'inverse de la première : elle boucle d'abord sur les températures, puis sur les concentrations
     global figs
     figs = []  # On réinitialise la liste des graphes, au cas où on lance les tracés plusieurs fois de suite!
     Yc = Symbol('Yc')
@@ -332,10 +331,11 @@ def calcul_grand_canonique_isoth(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, EFv, 
                 Cv = exp(- EFv / (kB * T))
 
                 clusters = [g[i] * exp(- Eb[i] / (kB * T)) * (Yc ** nY[i]) * (Cv ** nV[i]) for i in range(len(nY))]
-                ##clusters.append(Cv)
+                # clusters.append(Cv)
 
-                # équations des concentrations nominales en fonction des concentrations des différents amas: eq1 pour oxy et eq2 pour lac
-                # en canonique (concentrations fixées), bizarre dans le cas de la lacune!
+                # équations des concentrations nominales en fonction des concentrations des
+                # différents amas: eq1 pour oxy et eq2 pour lac en canonique
+                # (concentrations fixées), bizarre dans le cas de la lacune!
                 eqY = sum(nY[i] * clusters[i] for i in range(len(nY))) - Ytot
                 # print("clusters:", clusters)
                 print("nY:", nY, ", Yc:", Yc, ", Ytot:", Ytot)
@@ -384,7 +384,7 @@ def calcul_grand_canonique_isoth(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, EFv, 
                     "Impossible de tracer le graphe pour cette valeur de concentration, toutes les valeurs de températures ont provoqué un échec du solveur!")
 
 
-###============================================================
+# ============================================================
 
 """ Tracé des concentrations en fonction de la temperature: """
 
@@ -475,7 +475,7 @@ def traceCONC_isoth(T, Ytot, atom, clusters, clusternum, dtype):
 
 def trace():  # Affichage des fonctions
 
-    ## Changement de tous les incréments de data, du fait de l'ajout des conditions v7 et vg
+    # Changement de tous les incréments de data, du fait de l'ajout des conditions v7 et vg
     global select
     data = recuperation()  # Une ruse pour transmettre plusieurs données de fonction en fonction sans provoquer de bug!
     mini = data[0]
@@ -487,17 +487,14 @@ def trace():  # Affichage des fonctions
     nb_atome_maille = data[6]
     atome = data[7]
     canonique = data[8]
-    cristal = data[9]
     cas = data[10]
     oxyde_flag = data[11]
     DFTnrj = data[12]
     isoT_flag = data[13]
     nbY = data[14]
     nbV = data[15]
-    deg = data[16]
     E = data[17]
     deftype = data[18]
-    charge = data[19]
     debug = data[20]
     print("nbY:", nbY)
     print("nbV:", nbV)
@@ -510,7 +507,6 @@ def trace():  # Affichage des fonctions
     # Attention, il ne faut pas oublier d'inverser la lecture des nB et nV
     if debug:
         DFTnrj = False
-        namefile = "data_test"
         nameoutput = "C_amas_diff_T_C_canonique_C_canonique_V_gc_avc_V2.dat"
         EoREF = 0.
     else:
@@ -596,8 +592,7 @@ def tracer():  # Pour afficher le graphe sélectionné
     boutonGauche.pack()
     boutonDroite = tkt.Button(fenetreGraphe, text="Suivant", command=shift_right, padx=5, pady=5, bd=3)
     boutonDroite.pack()
-    cauall = tkt.Button(fenetreGraphe, text="Enregistrer tous les graphes", command=record_all, padx=5, pady=5,
-                        bd=3)
+    cauall = tkt.Button(fenetreGraphe, text="Enregistrer tous les graphes", command=record_all, padx=5, pady=5, bd=3)
     cauall.pack()
 
     fenetreGraphe.mainloop()
@@ -684,10 +679,10 @@ def record_all():
             select = i
             record()
         select = stock
-        tkt.messagebox.showinfo("Enregistrement",
-                                "Tous les graphes ont été enregistrés dans le dossier courant avec succès")
+        messagebox.showinfo("Enregistrement",
+                            "Tous les graphes ont été enregistrés dans le dossier courant avec succès")
     except Exception:
-        tkt.messagebox.showerror("Enregistrement", "Une erreur est survenue lors de l'enregistrement des graphes")
+        messagebox.showerror("Enregistrement", "Une erreur est survenue lors de l'enregistrement des graphes")
 
 
 def recuperation():  # Fonction récupérant les valeurs à partir des données saisies
@@ -706,22 +701,20 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
     vd = selection_o.get()
     ve = selection_x.get()
     vf = selection_d.get()
-    ##&Kevin-debut&
     vg = selection_type_g.get()
-    ##&Kevin-fin&
     debug = False
 
     if v1 > v2:
         v2, v1 = v1, v2
-        tkt.messagebox.showwarning("Températures",
-                                   "La température initiale doit être plus élevée que la température initiale !")
-        tkt.messagebox.showinfo("Températures", "Les valeurs ont été automatiquement inversées.")
+        messagebox.showwarning("Températures",
+                               "La température initiale doit être plus élevée que la température initiale !")
+        messagebox.showinfo("Températures", "Les valeurs ont été automatiquement inversées.")
     if v3 <= 0:
-        tkt.messagebox.showerror("Températures", "Le pas de calcul doit être strictement positif !")
+        messagebox.showerror("Températures", "Le pas de calcul doit être strictement positif !")
 
     if v7 <= 0:
-        tkt.messagebox.showerror("Nombre atomes par maille",
-                                 "Le nombre d'atomes par maille doit être strictement positif !")
+        messagebox.showerror("Nombre atomes par maille",
+                             "Le nombre d'atomes par maille doit être strictement positif !")
 
     if va == "H: Dihydrogène":
         va = "H"
@@ -735,15 +728,15 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
         va = "H"
         debug = True
     else:
-        tkt.messagebox.showerror("Atomes", "L'atome sélectionné est incorrect!")
+        messagebox.showerror("Atomes", "L'atome sélectionné est incorrect!")
 
     if vb == "GCy: lacunaire uniquement":
         vb = "GCy"
     elif vb == "GCvy: lacunaire et interstitiel":
         vb = "GCvy"
     else:
-        tkt.messagebox.showwarning("Canonique",
-                                   "L'ensemble canonique sélectionné est incorrect; le mode lacunaire uniquement est sélectionné par défaut.")
+        messagebox.showwarning("Canonique",
+                               "L'ensemble canonique sélectionné est incorrect; le mode lacunaire uniquement est sélectionné par défaut.")
 
     if vc == "Be: Béryllium":
         vc = "Be"
@@ -752,8 +745,8 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
         vc = "Ti"
 
     else:
-        tkt.messagebox.showwarning("Atomes",
-                                   "Le cristal sélectionné est incorrect; le Béryllium est sélectionné par défaut.")
+        messagebox.showwarning("Atomes",
+                               "Le cristal sélectionné est incorrect; le Béryllium est sélectionné par défaut.")
 
     if vd == "Exponentiel borné":
         vd = 1
@@ -762,8 +755,8 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
     elif vd == "Valeurs linéaires":
         vd = 3
     else:
-        tkt.messagebox.showerror("Concentrations",
-                                 "Le mode de concentration sélectionné est incorrect; les valeurs linéaires sont sélectionnées par défaut.")
+        messagebox.showerror("Concentrations",
+                             "Le mode de concentration sélectionné est incorrect; les valeurs linéaires sont sélectionnées par défaut.")
 
     if ve == "Oxydes":
         ve = True
@@ -771,8 +764,8 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
         ve = False
     else:
         ve = False
-        tkt.messagebox.showwarning("Charges",
-                                   "L'option sélectionnée est incorrecte; les charges sont par défaut désactivées.")
+        messagebox.showwarning("Charges",
+                               "L'option sélectionnée est incorrecte; les charges sont par défaut désactivées.")
 
     if vf == "DFT":
         vf = True
@@ -780,8 +773,8 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
         vf = False
     else:
         vf = False
-        tkt.messagebox.showwarning("énergies de liaison",
-                                   "L'option sélectionnée est incorrecte; les énergies de liaison sont par défaut désactivées.")
+        messagebox.showwarning("énergies de liaison",
+                               "L'option sélectionnée est incorrecte; les énergies de liaison sont par défaut désactivées.")
 
     if vg == "Isotherme":
         vg = True
@@ -789,8 +782,8 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
         vg = False
     else:
         vg = True
-        tkt.messagebox.showwarning("Mode de graphiques",
-                                   "L'option sélectionnée est incorrecte; les graphes sont par défaut isothermes.")
+        messagebox.showwarning("Mode de graphiques",
+                               "L'option sélectionnée est incorrecte; les graphes sont par défaut isothermes.")
 
     nbY, nbV, deg, E, deftype, charge = [], [], [], [], [], []
     if va in ["H", "C", "N", "O"] and vb in ["GCy", "GCvy"] and vc == ["Ti"] and vd in [1, 2, 3] and v3 > 0:
@@ -816,12 +809,12 @@ def lire_fichier():
         file.close()
         texte = texte.replace(" ", " ; ")
     except (FileNotFoundError, TypeError):
-        tkt.messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
+        messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
         return
 
     texte = texte.split("\n")
     if any(";" not in ligne for ligne in texte) or any(";" in ligne for ligne in texte if ligne.count(";") != 4):
-        tkt.messagebox.showerror("Fichier", "Le fichier demandé n'est pas bien formaté!")
+        messagebox.showerror("Fichier", "Le fichier demandé n'est pas bien formaté!")
         return
     # Ouvrir une fenêtre pour afficher les données du fichier
     fenetreFichier = tkt.Toplevel()
@@ -831,35 +824,22 @@ def lire_fichier():
     for i in range(5):
         fenetreFichier.columnconfigure(i, weight=1)
 
-    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Helvetica", 12, "bold"), borderwidth=1,
-              relief="solid").grid(
-        row=0,
-        column=0,
-        sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
+        row=0, column=0, sticky=NSEW)
     tkt.Label(fenetreFichier, text="Nb atomes " + atom, font=("Helvetica", 12, "bold"), borderwidth=1,
-              relief="solid").grid(
-        row=0, column=1, sticky=NSEW)
+              relief="solid").grid(row=0, column=1, sticky=NSEW)
     tkt.Label(fenetreFichier, text="Dégénéréscences", font=("Helvetica", 12, "bold"), borderwidth=1,
-              relief="solid").grid(
-        row=0, column=2, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Helvetica", 12, "bold"), borderwidth=1,
-              relief="solid").grid(
-        row=0,
-        column=3,
-        sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Nom Config", font=("Helvetica", 12, "bold"), borderwidth=1,
-              relief="solid").grid(
-        row=0,
-        column=4,
-        sticky=NSEW)
+              relief="solid").grid(row=0, column=2, sticky=NSEW)
+    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
+        row=0, column=3, sticky=NSEW)
+    tkt.Label(fenetreFichier, text="Nom Config", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
+        row=0, column=4, sticky=NSEW)
 
     for i in range(nb_ligne):
         ligne = texte[i].split(" ; ")
         for j in range(5):
             tkt.Label(fenetreFichier, text=ligne[j], font=("Helvetica", 11), borderwidth=1, relief="solid").grid(
-                row=i + 1,
-                column=j,
-                sticky=NSEW)
+                row=i + 1, column=j, sticky=NSEW)
 
     fenetreFichier.geometry("800x" + str(50 * (nb_ligne + 1)))
     fenetreFichier.mainloop()
@@ -877,7 +857,7 @@ def select_fichier():
 fichier = None  # Pour stocker le fichier de données sélectionné
 figs = []  # Pour stocker notre série de graphes
 select = 0  # Cette variable nous sera utile pour faire défiler les graphes!
-fenetre = Tk()
+fenetre = tkt.Tk()
 fenetre.title("Calcul des énergies")
 fenetre.geometry("1300x750")
 fenetre.columnconfigure(0, weight=1)
