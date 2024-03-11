@@ -133,7 +133,7 @@ def convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atom="C", DFT=False, nrjREF=0.0
                 NRJb = E[i] + (float(nbV[i]) + float(nbY[i]) - 1.0) * Ebulk - nbV[i] * Elac - nbY[i] * E_monosol
 
                 Etemp.append(NRJb)
-                Egc_t = E[i] - (Ebulk) - (Eref)
+                Egc_t = E[i] - Ebulk - Eref
                 NRJgc.append(Egc_t)
                 num.append(i)
         Eb = [Etemp[i] for i in range(len(Etemp))]
