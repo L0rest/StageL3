@@ -1,3 +1,5 @@
+flag : Tini=300 ; Tfin=1000 ; Tstep=100 ; dim_supercell=443 ; nb_at=2 ; atom=N ; ens_canon=GCy ; charge=0 ; cristal=Ti ; traitement=DFT
+
 0 0 1 -749.07575481 bulk
 1 0 48 -739.2145188 lacune
 0 1 96 -761.1142249 OC
