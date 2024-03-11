@@ -1,6 +1,6 @@
 import sys
 import tkinter as tkt
-from tkinter import ttk, messagebox, NSEW, N, S, NS
+from tkinter import ttk, messagebox, NSEW, N, S, NS, END, filedialog
 
 import matplotlib.pyplot as plt
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
@@ -872,10 +872,69 @@ def lire_fichier():
 def select_fichier():
     global select
     global fichier
-    fichier = tkt.filedialog.askopenfilename(title="Ouvrir un fichier")
+
+    fichier = filedialog.askopenfilename(title="Ouvrir un fichier")
+
     if fichier:
         # Get file name only
         textSelectData.config(text="Fichier sélectionné : " + fichier.split("/")[-1])
+
+        file = open(fichier)
+        texte = file.read()
+        file.close()
+        texte = texte.split("\n")
+
+        if any("flag" in ligne for ligne in texte):
+            ligne = [l for l in texte if "flag" in l][0].split(";")
+            ligne = [(l.split("="))[1].replace(" ", "") for l in ligne]
+            t_init, t_fin, t_step, dim_supercell, nb_at, atom, ens_canon, charge, cristal, traitement = ligne
+
+            temperature_initiale.delete(0, END)
+            temperature_initiale.insert(0, t_init)
+            temperature_finale.delete(0, END)
+            temperature_finale.insert(0, t_fin)
+            temperature_pas.delete(0, END)
+            temperature_pas.insert(0, t_step)
+            dim_x.delete(0, END)
+            dim_y.delete(0, END)
+            dim_z.delete(0, END)
+            dim_x.insert(0, dim_supercell[0])
+            dim_y.insert(0, dim_supercell[1])
+            dim_z.insert(0, dim_supercell[2])
+            nb_atom_maille.delete(0, END)
+            nb_atom_maille.insert(0, nb_at)
+
+            selection_y.delete(0, END)
+            i = 0
+            while i < len(atomes_y) and atom not in atomes_y[i]:
+                i += 1
+            selection_y.current(i)
+
+            selection_c.delete(0, END)
+            if ens_canon == "GCy":
+                selection_c.current(0)
+            else:
+                selection_c.current(1)
+
+            selection_x.delete(0, END)
+            if charge == "#O":
+                selection_x.current(1)
+            else:
+                selection_x.current(0)
+
+            selection_r.delete(0, END)
+            if cristal == "Be":
+                selection_r.current(0)
+            else:
+                selection_r.current(1)
+
+            selection_d.delete(0, END)
+            if traitement == "DFT":
+                selection_d.current(0)
+            else:
+                selection_d.current(1)
+
+
 
 
 fichier = None  # Pour stocker le fichier de données sélectionné
@@ -952,9 +1011,7 @@ selection_y = ttk.Combobox(cadre2, values=atomes_y, justify="center", state="rea
 selection_y.current(0)
 
 selection_cristal = tkt.Label(cadre2, text="Sélectionnez le cristal :", font=("Helvetica", 11))
-
 atomes_c = ['Be: Béryllium', 'Ti: Titane']
-
 selection_r = ttk.Combobox(cadre2, values=atomes_c, justify="center", state="readonly", font=("Helvetica", 11))
 selection_r.current(0)
 
