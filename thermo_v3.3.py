@@ -69,9 +69,11 @@ def lecture(nomfile, debug=False, oxyde=False):  # Lecture des données d'entré
                     deftype.append(str(data[4]))
         print("Il y a", len(E), "défauts")
         return nbY, nbV, deg, E, deftype, charge
-    except Exception:
-        messagebox.showerror("Erreur", "Le fichier n'a pas été trouvé ou n'est pas lisible!")
-
+    except FileNotFoundError:
+        messagebox.showerror("Erreur", "Le fichier n'a pas été trouvé!")
+    except ValueError:
+        messagebox.showerror("Erreur",
+                             "Le fichier contient des données non numériques là où des nombres étaient attendus!")
 
 # =====================================================================
 
@@ -818,6 +820,10 @@ def recuperation():  # Fonction récupérant les valeurs à partir des données 
 
 
 def lire_fichier():
+    """
+    Ouvre une fenêtre pour sélectionner un fichier de données
+    :return:
+    """
     global select
     global fichier
 
@@ -832,12 +838,13 @@ def lire_fichier():
         messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
         return
 
-    texte = texte.split("\n")
-    texte = [ligne for ligne in texte if ligne != '']
-    texte = [ligne for ligne in texte if 'flag' not in ligne]
+    texte = texte.split("\n")  # On découpe le texte en lignes
+    texte = [ligne for ligne in texte if ligne != '']  # On enlève les lignes vides
+    texte = [ligne for ligne in texte if 'flag' not in ligne]  # On enlève les lignes de flag
     nb_ligne = len(texte)
 
-    texte = [ligne.replace(" ",";") for ligne in texte]
+    texte = [ligne.replace(" ", ";") for ligne in texte]
+    # Si le fichier est bien formaté, chaque ligne doit contenir 4 points virgules (i.e. 5 colonnes)
     if any(";" not in ligne for ligne in texte) or any(";" in ligne for ligne in texte if ligne.count(";") != 4):
         messagebox.showerror("Fichier", "Le fichier demandé n'est pas bien formaté!")
         return
@@ -872,6 +879,10 @@ def lire_fichier():
 
 
 def select_fichier():
+    """
+    Ouvre une fenêtre pour sélectionner un fichier de données
+    :return:
+    """
     global select
     global fichier
 
@@ -886,6 +897,7 @@ def select_fichier():
         file.close()
         texte = texte.split("\n")
 
+        # Si le fichier contient un flag, on récupère les valeurs pour les mettre dans les champs correspondants
         if any("flag" in ligne for ligne in texte):
             ligne = [l for l in texte if "flag" in l][0].split(";")
             ligne = [(l.split("="))[1].replace(" ", "") for l in ligne]
@@ -935,8 +947,6 @@ def select_fichier():
                 selection_d.current(0)
             else:
                 selection_d.current(1)
-
-
 
 
 fichier = None  # Pour stocker le fichier de données sélectionné
@@ -1046,8 +1056,6 @@ verifData = tkt.Button(cadre2, text="Vérifier les données du fichier", command
 selectData = tkt.Button(cadre2, text="Sélectionner le fichier de données", command=select_fichier, bd=3)
 textSelectData = tkt.Label(cadre2, text="Aucun fichier sélectionné", font=("Helvetica", 11))
 drawGraph = tkt.Button(cadre2, text="Tracer le graphe!", command=trace, bd=3)
-
-"""caught = tkt.Button(cadre2, text="Enregistrer le graphe dans le dossier courant", command=record)"""
 
 titre_initiale.grid(row=0, column=0, sticky=S)
 temperature_initiale.grid(row=1, column=0, sticky=N)
