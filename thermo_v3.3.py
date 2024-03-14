@@ -53,7 +53,7 @@ def lecture(nomfile, debug=False, oxyde=False):  # Lecture des données d'entré
     try:
         with open(nomfile, 'r', encoding='utf8') as inp:
             for line in inp:
-                if not(line == '\n' or 'flag' in line):
+                if not(line.replace(' ', '') == '\n' or 'flag' in line):
                     data = line.split()
                     if debug:  # Attention dans les données initiales nbV et nbY sont interverties dans le fichier data_test !!!!
                         nbY.append(int(data[0]))
