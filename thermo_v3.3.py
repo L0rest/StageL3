@@ -1108,7 +1108,11 @@ textSelectData.grid(row=6, column=0, sticky=NSEW)
 drawGraph.grid(row=6, column=2, sticky=NSEW)
 
 texte0 = tkt.Label(fenetre,
-                   text="Version: 0.3.1 du 14/12/2023 par Kevin Gautier \n Versions précédentes: 0.2 du 06/05/2023 par Gabriel Faraut \n 0.1 du 25/06/2021 par Damien Connétable \n E_mail: damien.connetable@ensiacet.fr \n CNRS CIRIMAT")
+                   text="Version: 0.4.1 du 14/03/2024 par Jawad Maache \n "
+                        "Versions précédentes: 0.3 du 14/12/2023 par Kevin Gautier \n "
+                        "0.2 du 06/05/2023 par Gabriel Faraut \n "
+                        "0.1 du 25/06/2021 par Damien Connétable \n "
+                        "E_mail: damien.connetable@ensiacet.fr \n CNRS CIRIMAT")
 texte0.grid(row=2, column=0, sticky="nsew")
 
 fenetre.resizable(True, True)
