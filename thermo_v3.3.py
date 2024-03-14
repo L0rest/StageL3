@@ -889,9 +889,6 @@ def select_fichier():
     fichier = filedialog.askopenfilename(title="Ouvrir un fichier")
 
     if fichier:
-        # Get file name only
-        textSelectData.config(text="Fichier sélectionné : " + fichier.split("/")[-1])
-
         file = open(fichier)
         texte = file.read()
         file.close()
@@ -902,6 +899,22 @@ def select_fichier():
             ligne = [l for l in texte if "flag" in l][0].split(";")
             ligne = [(l.split("="))[1].replace(" ", "") for l in ligne]
             t_init, t_fin, t_step, dim_supercell, nb_at, atom, ens_canon, charge, cristal, traitement = ligne
+
+            if int(t_init) < 0 or int(t_fin) < 0 or int(t_step) < 0 or int(dim_supercell[0]) < 0 or int(dim_supercell[1]) < 0 or int(dim_supercell[2]) < 0 or int(nb_at) < 0:
+                messagebox.showerror("Flag", "Les valeurs du flag ne peuvent pas être négatives")
+                return
+            if int(t_init) > int(t_fin):
+                messagebox.showerror("Flag", "La température initiale doit être inférieure à la température finale")
+                return
+            if int(t_step) == 0:
+                messagebox.showerror("Flag", "Le pas de calcul ne peut pas être nul")
+                return
+            if int(dim_supercell[0]) == 0 or int(dim_supercell[1]) == 0 or int(dim_supercell[2]) == 0:
+                messagebox.showerror("Flag", "Les dimensions du cristal ne peuvent pas être nulles")
+                return
+            if int(nb_at) == 0:
+                messagebox.showerror("Flag", "Le nombre d'atomes par maille ne peut pas être nul")
+                return
 
             temperature_initiale.delete(0, END)
             temperature_initiale.insert(0, t_init)
@@ -947,6 +960,11 @@ def select_fichier():
                 selection_d.current(0)
             else:
                 selection_d.current(1)
+
+        # Get file name only
+        textSelectData.config(text="Fichier sélectionné : " + fichier.split("/")[-1])
+
+        messagebox.showinfo("Fichier", "Le fichier a été sélectionné avec succès")
 
 
 fichier = None  # Pour stocker le fichier de données sélectionné
