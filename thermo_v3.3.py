@@ -53,27 +53,25 @@ def lecture(nomfile, debug=False, oxyde=False):  # Lecture des données d'entré
     try:
         with open(nomfile, 'r', encoding='utf8') as inp:
             for line in inp:
-                data = line.split()
-                if debug:  # Attention dans les données initiales nbV et nbY sont interverties dans le fichier data_test !!!!
-                    nbY.append(int(data[0]))
-                    nbV.append(int(data[1]))
-                else:
-                    nbV.append(int(data[0]))
-                    nbY.append(int(data[1]))
-                deg.append(int(data[2]))
-                E.append(float(data[3]))
-                if oxyde:
-                    charge.append(float(data[4]))
-                    deftype.append(str(data[5]))
-                else:
-                    deftype.append(str(data[4]))
+                if not(line == '\n' or 'flag' in line):
+                    data = line.split()
+                    if debug:  # Attention dans les données initiales nbV et nbY sont interverties dans le fichier data_test !!!!
+                        nbY.append(int(data[0]))
+                        nbV.append(int(data[1]))
+                    else:
+                        nbV.append(int(data[0]))
+                        nbY.append(int(data[1]))
+                    deg.append(int(data[2]))
+                    E.append(float(data[3]))
+                    if oxyde:
+                        charge.append(float(data[4]))
+                        deftype.append(str(data[5]))
+                    else:
+                        deftype.append(str(data[4]))
         print("Il y a", len(E), "défauts")
         return nbY, nbV, deg, E, deftype, charge
-    except FileNotFoundError:
-        messagebox.showerror("Erreur", "Le fichier n'a pas été trouvé!")
-    except ValueError:
-        messagebox.showerror("Erreur",
-                             "Le fichier contient des données non numériques là où des nombres étaient attendus!")
+    except Exception:
+        messagebox.showerror("Impossible de tracer le(s) graphe(s) demandé(s)!, modifiez les paramètres d'entrée et/ou le fichier sélectionné")
 
 # =====================================================================
 
