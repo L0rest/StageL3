@@ -53,7 +53,7 @@ def lecture(nomfile, debug=False, oxyde=False):  # Lecture des données d'entré
     try:
         with open(nomfile, 'r', encoding='utf8') as inp:
             for line in inp:
-                if not(line.replace(' ', '') == '\n' or 'flag' in line):
+                if not (line.replace(' ', '') == '\n' or 'flag' in line):
                     data = line.split()
                     if debug:  # Attention dans les données initiales nbV et nbY sont interverties dans le fichier data_test !!!!
                         nbY.append(int(data[0]))
@@ -71,7 +71,9 @@ def lecture(nomfile, debug=False, oxyde=False):  # Lecture des données d'entré
         print("Il y a", len(E), "défauts")
         return nbY, nbV, deg, E, deftype, charge
     except Exception:
-        messagebox.showerror("Impossible de tracer le(s) graphe(s) demandé(s)!, modifiez les paramètres d'entrée et/ou le fichier sélectionné")
+        messagebox.showerror(
+            "Impossible de tracer le(s) graphe(s) demandé(s)!, modifiez les paramètres d'entrée et/ou le fichier sélectionné")
+
 
 # =====================================================================
 
@@ -898,7 +900,8 @@ def select_fichier():
             ligne = [(l.split("="))[1].replace(" ", "") for l in ligne]
             t_init, t_fin, t_step, dim_supercell, nb_at, atom, ens_canon, charge, cristal, traitement = ligne
 
-            if int(t_init) < 0 or int(t_fin) < 0 or int(t_step) < 0 or int(dim_supercell[0]) < 0 or int(dim_supercell[1]) < 0 or int(dim_supercell[2]) < 0 or int(nb_at) < 0:
+            if int(t_init) < 0 or int(t_fin) < 0 or int(t_step) < 0 or int(dim_supercell[0]) < 0 or int(
+                    dim_supercell[1]) < 0 or int(dim_supercell[2]) < 0 or int(nb_at) < 0:
                 messagebox.showerror("Flag", "Les valeurs du flag ne peuvent pas être négatives")
                 return
             if int(t_init) > int(t_fin):
@@ -965,7 +968,83 @@ def select_fichier():
         messagebox.showinfo("Fichier", "Le fichier a été sélectionné avec succès")
 
 
+def select_fichier_solu():
+    global fichiersSolu
+    fichier = filedialog.askopenfilenames(title="Sélectionner des fichiers")
+
+    textSelectFichiers.config(text="Fichiers sélectionnés : " + str(len(fichier)))
+    fichiersSolu = [f for f in fichier]
+
+    return
+
+
+def calculSolu():
+    global fichiersSolu
+    x = Symbol('x')
+    T = [10 * i for i in range(1, 101)]
+    kB = 8.6173303e-5
+
+    solu = []
+    temp = []
+
+    file1 = open("F-Ti2N.txt", 'r')
+    lines = file1.readlines()
+    file1.close()
+    F = []
+    for l in lines:
+        l = l.split("\t")
+        F.append(float(l[0]))
+
+    for f in fichiersSolu:
+        file = open(f, 'r')
+        lines = file.readlines()
+        file.close()
+        sol = []
+        t = []
+
+        for l in lines:
+            l = l.split(";")
+            sol.append(float(l[0]))
+            t.append(float(l[1]))
+        solu.append(sol)
+        temp.append(t)
+
+    concentration = []
+
+    for i in range(50,100):
+        beta = 1/(kB*T[i])
+
+        value = nsolve(1e-150 * (96 * (exp(x * beta)) - 1 / 2 * (beta * (x + F[i]))), -0.1)
+        concentration.append(1 / 2 * (value + F[i]) * beta / 100)
+
+    fenetreSolu = tkt.Toplevel()
+    fenetreSolu.title("Calcul de solubilité")
+    fenetreSolu.geometry("900x700")
+    # tracer le graphe dans la fenêtre
+
+    fig = plt.figure()
+    plot1 = fig.add_subplot(111)
+    plot1.plot(concentration, T[50:100], label="DFT parametrization")
+    for i in range(len(solu)):
+        plot1.plot(solu[i], temp[i], '.', label=str(i))
+    plot1.set_xlabel('Concentration')
+    plot1.set_ylabel('Temperature')
+    plot1.legend()
+
+    canvas = FigureCanvasTkAgg(fig, master=fenetreSolu)
+    canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+    canvas.draw()
+    toolbar = NavigationToolbar2Tk(canvas, fenetreSolu)
+    toolbar.update()
+    canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
+
+    fenetreSolu.mainloop()
+
+
+# ============================ FRONT ============================================
+
 fichier = None  # Pour stocker le fichier de données sélectionné
+fichiersSolu = [] # Pour stocker les fichiers pour le calcul de solubilité
 figs = []  # Pour stocker notre série de graphes
 select = 0  # Cette variable nous sera utile pour faire défiler les graphes!
 fenetre = tkt.Tk()
@@ -975,6 +1054,7 @@ fenetre.columnconfigure(0, weight=1)
 fenetre.rowconfigure(0, weight=1)
 fenetre.rowconfigure(1, weight=1)
 fenetre.rowconfigure(2, weight=1)
+fenetre.rowconfigure(3, weight=1)
 
 """y_scrollbar = ttk.Scrollbar(cadre0, orient = VERTICAL, command = my_canvas.yview)
 y_scrollbar.pack(side = RIGHT, fill = Y)
@@ -1107,13 +1187,33 @@ selectData.grid(row=5, column=0, sticky=NS)
 textSelectData.grid(row=6, column=0, sticky=NSEW)
 drawGraph.grid(row=6, column=2, sticky=NSEW)
 
+cadre3 = tkt.LabelFrame(fenetre, text="Calcul de solubilité", padx=20, pady=20, font=("Helvetica", 10), bd=5,
+                        relief="groove")
+cadre3.rowconfigure(0, weight=1)
+cadre3.rowconfigure(1, weight=1)
+cadre3.rowconfigure(2, weight=1)
+cadre3.columnconfigure(0, weight=1)
+cadre3.columnconfigure(1, weight=1)
+cadre3.columnconfigure(2, weight=1)
+cadre3.columnconfigure(3, weight=1)
+cadre3.columnconfigure(4, weight=1)
+cadre3.grid(row=2, column=0, sticky=NSEW)
+
+textSelectFichiers = tkt.Label(cadre3, text="Aucun fichier sélectionné", font=("Helvetica", 11))
+boutonSelectFichiers = tkt.Button(cadre3, text="Sélectionner les fichiers de données", command=select_fichier_solu,
+                                  bd=3)
+textSelectFichiers.grid(row=0, column=0, sticky=NSEW)
+boutonSelectFichiers.grid(row=1, column=0, sticky=NSEW)
+
+boutonCalcul = tkt.Button(cadre3, text="Calculer", command=calculSolu, bd=3)
+boutonCalcul.grid(row=2, column=2, sticky=NSEW)
+
 texte0 = tkt.Label(fenetre,
                    text="Version: 0.4.1 du 14/03/2024 par Jawad Maache \n "
                         "Versions précédentes: 0.3 du 14/12/2023 par Kevin Gautier \n "
                         "0.2 du 06/05/2023 par Gabriel Faraut \n "
                         "0.1 du 25/06/2021 par Damien Connétable \n "
                         "E_mail: damien.connetable@ensiacet.fr \n CNRS CIRIMAT")
-texte0.grid(row=2, column=0, sticky="nsew")
+texte0.grid(row=3, column=0, sticky=NSEW)
 
-fenetre.resizable(True, True)
 fenetre.mainloop()  # Tout
