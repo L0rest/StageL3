@@ -388,11 +388,20 @@ def calcul_grand_canonique_isoth(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, EFv, 
 
 # ============================================================
 
-""" Tracé des concentrations en fonction de la temperature: """
-
 
 def traceCONC(T, Ytot, atom, clusters, clusternum, dtype):
+    """
+    Tracé des concentrations en fonction de la température
+    :param T:
+    :param Ytot:
+    :param atom:
+    :param clusters:
+    :param clusternum:
+    :param dtype:
+    :return:
+    """
     global figs
+
     fig1, ax1 = plt.subplots()
     lacune = ["LAC", "lac", "VAC", "vac", "Vac", "Lac", "1NN", "1nn", "2NN", "2nn"]
 
@@ -430,7 +439,18 @@ def traceCONC(T, Ytot, atom, clusters, clusternum, dtype):
 # ========================================================================
 
 def traceCONC_isoth(T, Ytot, atom, clusters, clusternum, dtype):
+    """
+    Tracé des concentrations en fonction de la concentration totale
+    :param T:
+    :param Ytot:
+    :param atom:
+    :param clusters:
+    :param clusternum:
+    :param dtype:
+    :return:
+    """
     global figs
+
     fig1, ax1 = plt.subplots()
 
     lacune = ["LAC", "lac", "VAC", "vac", "Vac", "Lac", "1NN", "1nn", "2NN", "2nn"]
@@ -475,10 +495,13 @@ def traceCONC_isoth(T, Ytot, atom, clusters, clusternum, dtype):
 
 # ========================================================================
 
-def trace():  # Affichage des fonctions
-
-    # Changement de tous les incréments de data, du fait de l'ajout des conditions v7 et vg
+def trace():
+    """
+    Créer les graphes à partir des données de sortie
+    :return:
+    """
     global select
+
     data = recuperation()  # Une ruse pour transmettre plusieurs données de fonction en fonction sans provoquer de bug!
     mini = data[0]
     maxi = data[1] + 1  # Pour ne pas rater le dernier point sur le graphe!
@@ -532,8 +555,13 @@ def trace():  # Affichage des fonctions
         tracer()
 
 
-def tracer():  # Pour afficher le graphe sélectionné
+def tracer():
+    """
+    Pour afficher le graphe sélectionné
+    :return:
+    """
     global select
+
     # Ouvrir une fenêtre pour afficher le graphe
     fenetreGraphe = tkt.Toplevel()
     fenetreGraphe.title("Graphes")
@@ -612,8 +640,13 @@ def tracer():  # Pour afficher le graphe sélectionné
     fenetreGraphe.mainloop()
 
 
-def tracer_isoth():  # Pour afficher le graphe sélectionné
+def tracer_isoth():
+    """
+    Pour afficher le graphe isotherme sélectionné
+    :return:
+    """
     global select
+
     # Ouvrir une fenêtre pour afficher le graphe
     fenetreGraphe = tkt.Toplevel()
     fenetreGraphe.title("Graphes isothermes")
@@ -692,12 +725,21 @@ def tracer_isoth():  # Pour afficher le graphe sélectionné
     fenetreGraphe.mainloop()
 
 
-def record():  # Pour enregistrer le graphe dans le dossier courant
+def record():
+    """
+    Enregistre le graphe sélectionné dans le dossier courant
+    :return:
+    """
     global select
+
     figs[select][0].savefig("fig_" + figs[select][1] + "_" + str(figs[select][2]) + ".pdf", dpi=600)
 
 
 def record_all():
+    """
+    Enregistre tous les graphes dans le dossier courant
+    :return:
+    """
     try:
         global select
         stock = select
@@ -711,7 +753,12 @@ def record_all():
         messagebox.showerror("Enregistrement", "Une erreur est survenue lors de l'enregistrement des graphes")
 
 
-def recuperation():  # Fonction récupérant les valeurs à partir des données saisies
+def recuperation():
+    """
+    Récupère les données entrées par l'utilisateur
+    :return:
+    """
+
     v1 = int(temperature_initiale.get())
     v2 = int(temperature_finale.get())
     v3 = int(temperature_pas.get())
@@ -969,7 +1016,12 @@ def select_fichier():
 
 
 def select_fichier_solu():
+    """
+    Ouvre une fenêtre pour sélectionner un ou plusieurs fichiers de données
+    :return:
+    """
     global fichiersSolu
+
     fichier = filedialog.askopenfilenames(title="Sélectionner des fichiers")
 
     textSelectFichiers.config(text="Fichiers sélectionnés : " + str(len(fichier)))
@@ -979,7 +1031,12 @@ def select_fichier_solu():
 
 
 def calculSolu():
+    """
+    Calcul de la solubilité
+    :return:
+    """
     global fichiersSolu
+
     x = Symbol('x')
     T = [10 * i for i in range(1, 101)]
     kB = 8.6173303e-5
@@ -1011,8 +1068,8 @@ def calculSolu():
 
     concentration = []
 
-    for i in range(50,100):
-        beta = 1/(kB*T[i])
+    for i in range(50, 100):
+        beta = 1 / (kB * T[i])
 
         value = nsolve(1e-150 * (96 * (exp(x * beta)) - 1 / 2 * (beta * (x + F[i]))), -0.1)
         concentration.append(1 / 2 * (value + F[i]) * beta / 100)
@@ -1044,7 +1101,7 @@ def calculSolu():
 # ============================ FRONT ============================================
 
 fichier = None  # Pour stocker le fichier de données sélectionné
-fichiersSolu = [] # Pour stocker les fichiers pour le calcul de solubilité
+fichiersSolu = []  # Pour stocker les fichiers pour le calcul de solubilité
 figs = []  # Pour stocker notre série de graphes
 select = 0  # Cette variable nous sera utile pour faire défiler les graphes!
 fenetre = tkt.Tk()
