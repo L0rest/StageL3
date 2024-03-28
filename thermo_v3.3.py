@@ -1038,6 +1038,10 @@ def select_fichier_solu():
     return
 
 
+def lire_fichier_solu():
+    pass
+
+
 def calculSolu():
     """
     Calcul de la solubilité
@@ -1161,7 +1165,9 @@ def lire_fichier_ftotal():
     fenetreFichier.mainloop()
 
 
+# ===============================================================================
 # ============================ FRONT ============================================
+# ===============================================================================
 
 fichier = None  # Pour stocker le fichier de données sélectionné
 fichiersSolu = []  # Pour stocker les fichiers pour le calcul de solubilité
@@ -1181,6 +1187,8 @@ fenetre.rowconfigure(3, weight=1)
 y_scrollbar.pack(side = RIGHT, fill = Y)
 my_canvas.configure(yscrollcommand = y_scrollbar.set)
 my_canvas.bind("<Configure>", lambda e: my_canvas.config(scrollregion= my_canvas.bbox(ALL)))"""
+
+# ============================ PARAMETRES DE CALCUL ============================================
 
 cadre1 = tkt.LabelFrame(fenetre, text="Paramétrage des variations de température, en Kelvin", padx=20, pady=20,
                         font=("Helvetica", 10), bd=5, relief="groove")
@@ -1216,6 +1224,8 @@ titre_dim = tkt.Label(cadre1, text="Entrez les dimensions x, y et z du cristal :
 nb_atom_maille = tkt.Entry(cadre1, width=2, font=("Helvetica", 12), justify="center")
 titre_atom = tkt.Label(cadre1, text="Entrez le nombre d'atomes par maille :", font=("Helvetica", 11))
 nb_atom_maille.insert(0, "2")
+
+# ============================ SELECTION DES ATOMES ============================================
 
 cadre2 = tkt.LabelFrame(fenetre, text="Sélection des atomes", padx=20, pady=20, font=("Helvetica", 10), bd=5,
                         relief="groove")
@@ -1308,6 +1318,8 @@ selectData.grid(row=5, column=0, sticky=NS)
 textSelectData.grid(row=6, column=0, sticky=NSEW)
 drawGraph.grid(row=6, column=2, sticky=NSEW)
 
+# ============================ CALCUL DE SOLUBILITE ============================================
+
 cadre3 = tkt.LabelFrame(fenetre, text="Calcul de solubilité", padx=20, pady=20, font=("Helvetica", 10), bd=5,
                         relief="groove")
 cadre3.rowconfigure(0, weight=2)
@@ -1317,6 +1329,7 @@ cadre3.rowconfigure(3, weight=2)
 cadre3.rowconfigure(4, weight=1)
 cadre3.rowconfigure(5, weight=1)
 cadre3.rowconfigure(6, weight=2)
+cadre3.rowconfigure(7, weight=2)
 cadre3.columnconfigure(0, weight=4)
 cadre3.columnconfigure(1, weight=1)
 cadre3.columnconfigure(2, weight=4)
@@ -1327,10 +1340,13 @@ cadre3.grid(row=2, column=0, sticky=NSEW)
 textSelectFichiers = tkt.Label(cadre3, text="Aucun fichier sélectionné", font=("Helvetica", 11))
 boutonSelectFichiers = tkt.Button(cadre3, text="Sélectionner les fichiers de données", command=select_fichier_solu,
                                   bd=3)
+listFichier = tkt.Listbox(cadre3, height=5, font=("Helvetica", 11), justify="center")
+boutonLireFichierSolu = tkt.Button(cadre3, width=30, text="Lire le fichier sélectionné", command=lire_fichier_solu, bd=3)
 textSelectFichiers.grid(row=1, column=0, sticky=NSEW)
 boutonSelectFichiers.grid(row=2, column=0, sticky=NSEW)
-listFichier = tkt.Listbox(cadre3, height=5, font=("Helvetica", 11), justify="center")
 listFichier.grid(row=4, column=0, sticky=NSEW)
+boutonLireFichierSolu.grid(row=5, column=0, sticky=S)
+
 
 textSelectFichierFtotal = tkt.Label(cadre3, text="Aucun fichier sélectionné", font=("Helvetica", 11))
 textSelectFichierFtotal.grid(row=0, column=4, sticky=NSEW)
@@ -1352,10 +1368,10 @@ radioEv.grid(row=0, column=0, sticky=NSEW)
 radioKj.grid(row=0, column=1, sticky=NSEW)
 
 boutonCalcul = tkt.Button(cadre3, text="Calculer", command=calculSolu, bd=3)
-boutonCalcul.grid(row=6, column=2, sticky=NSEW)
+boutonCalcul.grid(row=7, column=2, sticky=NSEW)
 
 texte0 = tkt.Label(fenetre,
-                   text="Version: 0.4.1 du 14/03/2024 par Jawad Maache \n "
+                   text="Version: 0.4.4 du 14/03/2024 par Jawad Maache \n "
                         "Versions précédentes: 0.3 du 14/12/2023 par Kevin Gautier \n "
                         "0.2 du 06/05/2023 par Gabriel Faraut \n "
                         "0.1 du 25/06/2021 par Damien Connétable \n "
