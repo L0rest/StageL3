@@ -1,6 +1,6 @@
 import sys
 import tkinter as tkt
-from tkinter import ttk, messagebox, NSEW, N, S, NS, END, filedialog, VERTICAL, RIGHT, Y, ALL, X
+from tkinter import ttk, messagebox, NSEW, N, S, NS, END, filedialog, VERTICAL, RIGHT, Y, ALL, X, DISABLED
 
 import matplotlib.pyplot as plt
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
@@ -1026,7 +1026,14 @@ def select_fichier_solu():
     fichier = filedialog.askopenfilenames(title="Sélectionner des fichiers")
 
     textSelectFichiers.config(text="Fichiers sélectionnés : " + str(len(fichier)))
-    fichiersSolu = [f for f in fichier]
+
+    # On réinitialise la liste des fichiers
+    fichiersSolu = []
+    listFichier.delete(0, END)
+
+    for f in fichier:
+        fichiersSolu.append(f)
+        listFichier.insert(END, f.split("/")[-1])
 
     return
 
@@ -1163,7 +1170,7 @@ figs = []  # Pour stocker notre série de graphes
 select = 0  # Cette variable nous sera utile pour faire défiler les graphes!
 fenetre = tkt.Tk()
 fenetre.title("Calcul des énergies")
-fenetre.geometry("1300x750")
+fenetre.geometry("1300x900")
 fenetre.columnconfigure(0, weight=1)
 fenetre.rowconfigure(0, weight=1)
 fenetre.rowconfigure(1, weight=1)
@@ -1303,45 +1310,49 @@ drawGraph.grid(row=6, column=2, sticky=NSEW)
 
 cadre3 = tkt.LabelFrame(fenetre, text="Calcul de solubilité", padx=20, pady=20, font=("Helvetica", 10), bd=5,
                         relief="groove")
-cadre3.rowconfigure(0, weight=1)
-cadre3.rowconfigure(1, weight=1)
-cadre3.rowconfigure(2, weight=1)
-cadre3.rowconfigure(3, weight=1)
+cadre3.rowconfigure(0, weight=2)
+cadre3.rowconfigure(1, weight=2)
+cadre3.rowconfigure(2, weight=2)
+cadre3.rowconfigure(3, weight=2)
 cadre3.rowconfigure(4, weight=1)
-cadre3.columnconfigure(0, weight=1)
+cadre3.rowconfigure(5, weight=1)
+cadre3.rowconfigure(6, weight=2)
+cadre3.columnconfigure(0, weight=4)
 cadre3.columnconfigure(1, weight=1)
-cadre3.columnconfigure(2, weight=1)
+cadre3.columnconfigure(2, weight=4)
 cadre3.columnconfigure(3, weight=1)
-cadre3.columnconfigure(4, weight=1)
+cadre3.columnconfigure(4, weight=4)
 cadre3.grid(row=2, column=0, sticky=NSEW)
 
 textSelectFichiers = tkt.Label(cadre3, text="Aucun fichier sélectionné", font=("Helvetica", 11))
 boutonSelectFichiers = tkt.Button(cadre3, text="Sélectionner les fichiers de données", command=select_fichier_solu,
                                   bd=3)
-textSelectFichiers.grid(row=0, column=0, sticky=NSEW)
-boutonSelectFichiers.grid(row=1, column=0, sticky=NSEW)
+textSelectFichiers.grid(row=1, column=0, sticky=NSEW)
+boutonSelectFichiers.grid(row=2, column=0, sticky=NSEW)
+listFichier = tkt.Listbox(cadre3, height=5, font=("Helvetica", 11), justify="center")
+listFichier.grid(row=4, column=0, sticky=NSEW)
 
 textSelectFichierFtotal = tkt.Label(cadre3, text="Aucun fichier sélectionné", font=("Helvetica", 11))
-textSelectFichierFtotal.grid(row=0, column=3, sticky=NSEW)
+textSelectFichierFtotal.grid(row=0, column=4, sticky=NSEW)
 
 boutonSelectFtotal = tkt.Button(cadre3, text="Sélectionner Ftotal", command=select_fichier_ftotal, bd=3)
-boutonSelectFtotal.grid(row=1, column=3, sticky=NSEW)
+boutonSelectFtotal.grid(row=1, column=4, sticky=NSEW)
 
 boutonLireFtotal = tkt.Button(cadre3, text="Lire Ftotal", command=lire_fichier_ftotal, bd=3)
-boutonLireFtotal.grid(row=2, column=3, sticky=NSEW)
+boutonLireFtotal.grid(row=2, column=4, sticky=NSEW)
 
 containerRadio = tkt.Frame(cadre3)
 containerRadio.rowconfigure(0, weight=1)
 containerRadio.columnconfigure(0, weight=1)
 containerRadio.columnconfigure(1, weight=1)
-containerRadio.grid(row=3, column=3, sticky=NSEW)
+containerRadio.grid(row=3, column=4, sticky=NSEW)
 radioEv = tkt.Radiobutton(containerRadio, text="Ev", value=1)
 radioKj = tkt.Radiobutton(containerRadio, text="Kj/mol", value=2)
 radioEv.grid(row=0, column=0, sticky=NSEW)
 radioKj.grid(row=0, column=1, sticky=NSEW)
 
 boutonCalcul = tkt.Button(cadre3, text="Calculer", command=calculSolu, bd=3)
-boutonCalcul.grid(row=4, column=2, sticky=NSEW)
+boutonCalcul.grid(row=6, column=2, sticky=NSEW)
 
 texte0 = tkt.Label(fenetre,
                    text="Version: 0.4.1 du 14/03/2024 par Jawad Maache \n "
