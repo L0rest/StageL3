@@ -1,6 +1,6 @@
 import sys
 import tkinter as tkt
-from tkinter import ttk, messagebox, NSEW, N, S, NS, END, filedialog
+from tkinter import ttk, messagebox, NSEW, N, S, NS, END, filedialog, VERTICAL, RIGHT, Y, ALL, X
 
 import matplotlib.pyplot as plt
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
@@ -1099,10 +1099,66 @@ def calculSolu():
     fenetreSolu.mainloop()
 
 
+def select_fichier_ftotal():
+    """
+    Ouvre une fenêtre pour sélectionner un fichier de données
+    :return:
+    """
+    global fichier_ftotal
+
+    fichier_ftotal = filedialog.askopenfilename(title="Ouvrir un fichier", filetypes=[('Text files', '*.txt')])
+
+    if fichier_ftotal:
+        textSelectFichierFtotal.config(text="Fichier sélectionné : " + fichier_ftotal.split("/")[-1])
+        messagebox.showinfo("Fichier", "Le fichier a été sélectionné avec succès")
+    else:
+        messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
+    return
+
+
+def lire_fichier_ftotal():
+    """
+    Ouvre une fenêtre pour sélectionner un fichier de données
+    :return:
+    """
+    global fichier_ftotal
+
+    try:
+        file = open(fichier_ftotal)
+        texte = file.read()
+        file.close()
+    except (FileNotFoundError, TypeError, NameError):
+        messagebox.showerror("Fichier", "Le fichier demandé n'existe pas!")
+        return
+
+    texte = texte.split("\n")  # On découpe le texte en lignes
+
+    # Ouvrir une fenêtre pour afficher les données du fichier
+    fenetreFichier = tkt.Toplevel(fenetre)
+    fenetreFichier.title("Fichier de données")
+    style = ttk.Style()
+    style.configure("Treeview.Heading", font=('Helvetica', 14))
+    style.configure("Treeview", font=('Helvetica', 13))
+    tree = ttk.Treeview(fenetreFichier, columns=("Température (K)", "Concentration totale"), show='headings')
+    tree.heading('Température (K)', text='Température (K)')
+    tree.heading('Concentration totale', text='Concentration totale')
+    tree.column('Température (K)', anchor='center')
+    tree.column('Concentration totale', anchor='center')
+    tree.pack(expand=True, fill=tkt.BOTH)
+
+    for i in range(len(texte)):
+        ligne = texte[i].split()
+        tree.insert("", "end", values=(ligne[0], ligne[1]))
+
+    fenetreFichier.geometry("800x600")
+    fenetreFichier.mainloop()
+
+
 # ============================ FRONT ============================================
 
 fichier = None  # Pour stocker le fichier de données sélectionné
 fichiersSolu = []  # Pour stocker les fichiers pour le calcul de solubilité
+fichier_ftotal = None  # Pour stocker le fichier de données sélectionné
 figs = []  # Pour stocker notre série de graphes
 select = 0  # Cette variable nous sera utile pour faire défiler les graphes!
 fenetre = tkt.Tk()
@@ -1250,6 +1306,8 @@ cadre3 = tkt.LabelFrame(fenetre, text="Calcul de solubilité", padx=20, pady=20,
 cadre3.rowconfigure(0, weight=1)
 cadre3.rowconfigure(1, weight=1)
 cadre3.rowconfigure(2, weight=1)
+cadre3.rowconfigure(3, weight=1)
+cadre3.rowconfigure(4, weight=1)
 cadre3.columnconfigure(0, weight=1)
 cadre3.columnconfigure(1, weight=1)
 cadre3.columnconfigure(2, weight=1)
@@ -1263,8 +1321,27 @@ boutonSelectFichiers = tkt.Button(cadre3, text="Sélectionner les fichiers de do
 textSelectFichiers.grid(row=0, column=0, sticky=NSEW)
 boutonSelectFichiers.grid(row=1, column=0, sticky=NSEW)
 
+textSelectFichierFtotal = tkt.Label(cadre3, text="Aucun fichier sélectionné", font=("Helvetica", 11))
+textSelectFichierFtotal.grid(row=0, column=3, sticky=NSEW)
+
+boutonSelectFtotal = tkt.Button(cadre3, text="Sélectionner Ftotal", command=select_fichier_ftotal, bd=3)
+boutonSelectFtotal.grid(row=1, column=3, sticky=NSEW)
+
+boutonLireFtotal = tkt.Button(cadre3, text="Lire Ftotal", command=lire_fichier_ftotal, bd=3)
+boutonLireFtotal.grid(row=2, column=3, sticky=NSEW)
+
+containerRadio = tkt.Frame(cadre3)
+containerRadio.rowconfigure(0, weight=1)
+containerRadio.columnconfigure(0, weight=1)
+containerRadio.columnconfigure(1, weight=1)
+containerRadio.grid(row=3, column=3, sticky=NSEW)
+radioEv = tkt.Radiobutton(containerRadio, text="Ev", value=1)
+radioKj = tkt.Radiobutton(containerRadio, text="Kj/mol", value=2)
+radioEv.grid(row=0, column=0, sticky=NSEW)
+radioKj.grid(row=0, column=1, sticky=NSEW)
+
 boutonCalcul = tkt.Button(cadre3, text="Calculer", command=calculSolu, bd=3)
-boutonCalcul.grid(row=2, column=2, sticky=NSEW)
+boutonCalcul.grid(row=4, column=2, sticky=NSEW)
 
 texte0 = tkt.Label(fenetre,
                    text="Version: 0.4.1 du 14/03/2024 par Jawad Maache \n "
