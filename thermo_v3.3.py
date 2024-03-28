@@ -249,6 +249,7 @@ def calcul_grand_canonique(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, conc, EFv, 
                 # équations des concentrations nominales en fonction des concentrations des différents amas: eq1 pour oxy et eq2 pour lac
                 # en canonique (concentrations fixées), bizarre dans le cas de la lacune!
                 eqY = sum(nY[i] * clusters[i] for i in range(len(nY))) - Ytot
+                totutile = sum(clusters)  # A CONFIRMER
                 # print("clusters:", clusters)
                 print("nY:", nY, ", Yc:", Yc, ", Ytot:", Ytot)
                 print("eqY:", eqY)
@@ -897,31 +898,31 @@ def lire_fichier():
         return
 
     # Ouvrir une fenêtre pour afficher les données du fichier
-    fenetreFichier = tkt.Toplevel()
-    fenetreFichier.title("Fichier")
-    for i in range(nb_ligne + 1):
-        fenetreFichier.rowconfigure(i, weight=1)
-    for i in range(5):
-        fenetreFichier.columnconfigure(i, weight=1)
-
-    tkt.Label(fenetreFichier, text="Nb lacunes", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
-        row=0, column=0, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Nb atomes " + atom, font=("Helvetica", 12, "bold"), borderwidth=1,
-              relief="solid").grid(row=0, column=1, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Dégénéréscences", font=("Helvetica", 12, "bold"), borderwidth=1,
-              relief="solid").grid(row=0, column=2, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="E(DFT) [eV]", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
-        row=0, column=3, sticky=NSEW)
-    tkt.Label(fenetreFichier, text="Nom Config", font=("Helvetica", 12, "bold"), borderwidth=1, relief="solid").grid(
-        row=0, column=4, sticky=NSEW)
+    fenetreFichier = tkt.Toplevel(fenetre)
+    fenetreFichier.title("Fichier de données")
+    style = ttk.Style()
+    style.configure("Treeview.Heading", font=('Helvetica', 14))
+    style.configure("Treeview", font=('Helvetica', 13))
+    tree = ttk.Treeview(fenetreFichier,
+                        columns=('Nb lacunes', "Nb atomes" + atom, "Dégénéréscences", "E(DFT) [eV]", "Nom Config"),
+                        show='headings')
+    tree.heading('Nb lacunes', text='Nb lacunes')
+    tree.heading("Nb atomes" + atom, text="Nb atomes " + atom)
+    tree.heading('Dégénéréscences', text='Dégénéréscences')
+    tree.heading('E(DFT) [eV]', text='E(DFT) [eV]')
+    tree.heading('Nom Config', text='Nom Config')
+    tree.column('Nb lacunes', anchor='center')
+    tree.column("Nb atomes" + atom, anchor='center')
+    tree.column('Dégénéréscences', anchor='center')
+    tree.column('E(DFT) [eV]', anchor='center')
+    tree.column('Nom Config', anchor='center')
+    tree.pack(expand=True, fill=tkt.BOTH)
 
     for i in range(nb_ligne):
         ligne = texte[i].split(";")
-        for j in range(5):
-            tkt.Label(fenetreFichier, text=ligne[j], font=("Helvetica", 11), borderwidth=1, relief="solid").grid(
-                row=i + 1, column=j, sticky=NSEW)
+        tree.insert("", "end", values=(ligne[0], ligne[1], ligne[2], ligne[3], ligne[4]))
 
-    fenetreFichier.geometry("800x" + str(50 * (nb_ligne + 1)))
+    fenetreFichier.geometry("1000x" + str(25 * nb_ligne))
     fenetreFichier.mainloop()
 
 
@@ -1044,7 +1045,7 @@ def calculSolu():
     solu = []
     temp = []
 
-    file1 = open("F-Ti2N.txt", 'r')
+    file1 = open("F_Ti2N.txt", 'r')
     lines = file1.readlines()
     file1.close()
     F = []
@@ -1273,4 +1274,4 @@ texte0 = tkt.Label(fenetre,
                         "E_mail: damien.connetable@ensiacet.fr \n CNRS CIRIMAT")
 texte0.grid(row=3, column=0, sticky=NSEW)
 
-fenetre.mainloop()  # Tout
+fenetre.mainloop()
