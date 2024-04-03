@@ -1039,7 +1039,41 @@ def select_fichier_solu():
 
 
 def lire_fichier_solu():
-    pass
+    """
+    Ouvre une fenêtre pour lire le fichier de données sélectionné
+    :return:
+    """
+
+    try:
+        file = open(listFichier.get(listFichier.curselection()))
+        texte = file.read()
+        file.close()
+    except Exception:
+        messagebox.showerror("Fichier", "Erreur lors de la lecture du fichier")
+        return
+
+    texte = texte.split("\n")  # On découpe le texte en lignes
+    texte = [ligne for ligne in texte if ligne != ''] # On enlève les lignes vides
+
+    # Ouvrir une fenêtre pour afficher les données du fichier
+    fenetreFichier = tkt.Toplevel(fenetre)
+    fenetreFichier.title("Fichier de données")
+    style = ttk.Style()
+    style.configure("Treeview.Heading", font=('Helvetica', 14))
+    style.configure("Treeview", font=('Helvetica', 13))
+    tree = ttk.Treeview(fenetreFichier, columns=("Concentration", "Température"), show='headings')
+    tree.heading('Concentration', text='Concentration')
+    tree.heading('Température', text='Température (K)')
+    tree.column('Concentration', anchor='center')
+    tree.column('Température', anchor='center')
+    tree.pack(expand=True, fill=tkt.BOTH)
+
+    for i in range(len(texte)):
+        ligne = texte[i].split(";")
+        tree.insert("", "end", values=(ligne[0], ligne[1]))
+
+    fenetreFichier.geometry("800x600")
+    fenetreFichier.mainloop()
 
 
 def calculSolu():
@@ -1050,19 +1084,20 @@ def calculSolu():
     global fichiersSolu
 
     x = Symbol('x')
-    T = [10 * i for i in range(1, 101)]
+    T = []
+    F = []
     kB = 8.6173303e-5
 
     solu = []
     temp = []
 
-    file1 = open("F_Ti2N.txt", 'r')
+    file1 = open(fichier_ftotal)
     lines = file1.readlines()
     file1.close()
-    F = []
     for l in lines:
-        l = l.split("\t")
-        F.append(float(l[0]))
+        l = l.split()
+        T.append(float(l[0]))
+        F.append(float(l[1]))
 
     for f in fichiersSolu:
         file = open(f, 'r')
@@ -1176,7 +1211,7 @@ figs = []  # Pour stocker notre série de graphes
 select = 0  # Cette variable nous sera utile pour faire défiler les graphes!
 fenetre = tkt.Tk()
 fenetre.title("Calcul des énergies")
-fenetre.geometry("1300x900")
+fenetre.geometry("1200x900")
 fenetre.columnconfigure(0, weight=1)
 fenetre.rowconfigure(0, weight=1)
 fenetre.rowconfigure(1, weight=1)
@@ -1322,14 +1357,15 @@ drawGraph.grid(row=6, column=2, sticky=NSEW)
 
 cadre3 = tkt.LabelFrame(fenetre, text="Calcul de solubilité", padx=20, pady=20, font=("Helvetica", 10), bd=5,
                         relief="groove")
-cadre3.rowconfigure(0, weight=2)
-cadre3.rowconfigure(1, weight=2)
-cadre3.rowconfigure(2, weight=2)
-cadre3.rowconfigure(3, weight=2)
+cadre3.rowconfigure(0, weight=1)
+cadre3.rowconfigure(1, weight=4)
+cadre3.rowconfigure(2, weight=4)
+cadre3.rowconfigure(3, weight=4)
 cadre3.rowconfigure(4, weight=1)
-cadre3.rowconfigure(5, weight=1)
-cadre3.rowconfigure(6, weight=2)
-cadre3.rowconfigure(7, weight=2)
+cadre3.rowconfigure(5, weight=4)
+cadre3.rowconfigure(6, weight=1)
+cadre3.rowconfigure(7, weight=6)
+
 cadre3.columnconfigure(0, weight=4)
 cadre3.columnconfigure(1, weight=1)
 cadre3.columnconfigure(2, weight=4)
@@ -1341,12 +1377,12 @@ textSelectFichiers = tkt.Label(cadre3, text="Aucun fichier sélectionné", font=
 boutonSelectFichiers = tkt.Button(cadre3, text="Sélectionner les fichiers de données", command=select_fichier_solu,
                                   bd=3)
 listFichier = tkt.Listbox(cadre3, height=5, font=("Helvetica", 11), justify="center")
-boutonLireFichierSolu = tkt.Button(cadre3, width=30, text="Lire le fichier sélectionné", command=lire_fichier_solu, bd=3)
+boutonLireFichierSolu = tkt.Button(cadre3, width=30, text="Lire le fichier sélectionné", command=lire_fichier_solu,
+                                   bd=3)
 textSelectFichiers.grid(row=1, column=0, sticky=NSEW)
 boutonSelectFichiers.grid(row=2, column=0, sticky=NSEW)
 listFichier.grid(row=4, column=0, sticky=NSEW)
 boutonLireFichierSolu.grid(row=5, column=0, sticky=S)
-
 
 textSelectFichierFtotal = tkt.Label(cadre3, text="Aucun fichier sélectionné", font=("Helvetica", 11))
 textSelectFichierFtotal.grid(row=0, column=4, sticky=NSEW)
@@ -1366,6 +1402,11 @@ radioEv = tkt.Radiobutton(containerRadio, text="Ev", value=1)
 radioKj = tkt.Radiobutton(containerRadio, text="Kj/mol", value=2)
 radioEv.grid(row=0, column=0, sticky=NSEW)
 radioKj.grid(row=0, column=1, sticky=NSEW)
+
+boutonVerifData = tkt.Button(cadre3, text="Vérifier les données", command=recuperation, bd=3)
+boutonVerifData.grid(row=5, column=4, sticky=NSEW)
+
+tkt.Label(cadre3, text="", font=("Helvetica", 11)).grid(row=6, column=0, columnspan=5, sticky=NSEW)
 
 boutonCalcul = tkt.Button(cadre3, text="Calculer", command=calculSolu, bd=3)
 boutonCalcul.grid(row=7, column=2, sticky=NSEW)
