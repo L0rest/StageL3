@@ -1088,8 +1088,8 @@ def calculSolu():
     F = []
     kB = 8.6173303e-5
 
-    solu = []
-    temp = []
+    solu = {}
+    temp = {}
 
     file1 = open(fichier_ftotal)
     lines = file1.readlines()
@@ -1110,15 +1110,15 @@ def calculSolu():
             l = l.split(";")
             sol.append(float(l[0]))
             t.append(float(l[1]))
-        solu.append(sol)
-        temp.append(t)
+        solu[f] = sol
+        temp[f] = t
 
     concentration = []
 
     for i in range(50, 100):
         beta = 1 / (kB * T[i])
 
-        value = nsolve(1e-150 * (96 * (exp(x * beta)) - 1 / 2 * (beta * (x + F[i]))), -0.1)
+        value = nsolve(96 * (exp(x * beta)) - 1 / 2 * (beta * (x + F[i])), -0.1)
         concentration.append(1 / 2 * (value + F[i]) * beta / 100)
 
     fenetreSolu = tkt.Toplevel()
@@ -1129,10 +1129,10 @@ def calculSolu():
     fig = plt.figure()
     plot1 = fig.add_subplot(111)
     plot1.plot(concentration, T[50:100], label="DFT parametrization")
-    for i in range(len(solu)):
-        plot1.plot(solu[i], temp[i], '.', label=str(i))
-    plot1.set_xlabel('Concentration')
-    plot1.set_ylabel('Temperature')
+    for s in solu:
+        plot1.plot(solu[s], temp[s], '.', label=s.split("/")[-1].split(".")[0])
+    plot1.set_xlabel('Nitrogen concentration')
+    plot1.set_ylabel('Temperature [K]')
     plot1.legend()
 
     canvas = FigureCanvasTkAgg(fig, master=fenetreSolu)
@@ -1185,11 +1185,11 @@ def lire_fichier_ftotal():
     style = ttk.Style()
     style.configure("Treeview.Heading", font=('Helvetica', 14))
     style.configure("Treeview", font=('Helvetica', 13))
-    tree = ttk.Treeview(fenetreFichier, columns=("Température (K)", "Concentration totale"), show='headings')
+    tree = ttk.Treeview(fenetreFichier, columns=("Température (K)", "Energie libre totale F[X] (eV)"), show='headings')
     tree.heading('Température (K)', text='Température (K)')
-    tree.heading('Concentration totale', text='Concentration totale')
+    tree.heading('Energie libre totale F[X] (eV)', text='Energie libre totale F[X] (eV)')
     tree.column('Température (K)', anchor='center')
-    tree.column('Concentration totale', anchor='center')
+    tree.column('Energie libre totale F[X] (eV)', anchor='center')
     tree.pack(expand=True, fill=tkt.BOTH)
 
     for i in range(len(texte)):
