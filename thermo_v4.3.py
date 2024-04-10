@@ -1131,8 +1131,9 @@ def calculSolu():
     plot1.plot(concentration, T[50:100], label="DFT parametrization")
     for s in solu:
         plot1.plot(solu[s], temp[s], '.', label=s.split("/")[-1].split(".")[0])
-    plot1.set_xlabel('Nitrogen concentration')
+    plot1.set_xlabel(nomEspece.get() + ' concentration')
     plot1.set_ylabel('Temperature [K]')
+    plot1.set_title(titreGraphique.get())
     plot1.legend()
 
     canvas = FigureCanvasTkAgg(fig, master=fenetreSolu)
@@ -1379,10 +1380,19 @@ boutonSelectFichiers = tkt.Button(cadre3, text="Sélectionner les fichiers de do
 listFichier = tkt.Listbox(cadre3, height=5, font=("Helvetica", 11), justify="center")
 boutonLireFichierSolu = tkt.Button(cadre3, width=30, text="Lire le fichier sélectionné", command=lire_fichier_solu,
                                    bd=3)
-textSelectFichiers.grid(row=1, column=0, sticky=NSEW)
-boutonSelectFichiers.grid(row=2, column=0, sticky=NSEW)
+textSelectFichiers.grid(row=0, column=0, sticky=NSEW)
+boutonSelectFichiers.grid(row=1, column=0, sticky=NSEW)
 listFichier.grid(row=4, column=0, sticky=NSEW)
 boutonLireFichierSolu.grid(row=5, column=0, sticky=S)
+
+textTitreGraphique = tkt.Label(cadre3, text="Titre du graphique", font=("Helvetica", 11))
+titreGraphique = tkt.Entry(cadre3, width=20, font=("Helvetica", 11), justify="center")
+textNomEspece = tkt.Label(cadre3, text="Nom de l'espèce", font=("Helvetica", 11))
+nomEspece = tkt.Entry(cadre3, width=20, font=("Helvetica", 11), justify="center")
+textTitreGraphique.grid(row=0, column=2, sticky=NSEW)
+titreGraphique.grid(row=1, column=2, sticky=NSEW)
+textNomEspece.grid(row=2, column=2, sticky=NSEW)
+nomEspece.grid(row=3, column=2, sticky=NSEW)
 
 textSelectFichierFtotal = tkt.Label(cadre3, text="Aucun fichier sélectionné", font=("Helvetica", 11))
 textSelectFichierFtotal.grid(row=0, column=4, sticky=NSEW)
