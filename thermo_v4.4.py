@@ -1083,6 +1083,22 @@ def calculSolu():
     """
     global fichiersSolu
 
+    if not fichiersSolu:
+        messagebox.showerror("Données", "Veuillez sélectionner au moins un fichier de données pour les solutions !")
+        return
+
+    if nomEspece.get() == "":
+        messagebox.showerror("Données", "Veuillez entrer le nom de l'espèce chimique !")
+        return
+
+    if titreGraphique.get() == "":
+        messagebox.showerror("Données", "Veuillez entrer le titre du graphique !")
+        return
+
+    if fichier_ftotal is None:
+        messagebox.showerror("Données", "Veuillez sélectionner un fichier de données pour F[X] !")
+        return
+
     x = Symbol('x')
     T = []
     F = []
@@ -1199,6 +1215,42 @@ def lire_fichier_ftotal():
 
     fenetreFichier.geometry("800x600")
     fenetreFichier.mainloop()
+
+
+def checkData():
+    global fichier_ftotal
+    global fichiersSolu
+
+    if fichier_ftotal is None:
+        messagebox.showerror("Données", "Veuillez sélectionner un fichier de données pour F[X] !")
+        return
+
+    if len(fichiersSolu) == 0:
+        messagebox.showerror("Données", "Veuillez sélectionner au moins un fichier de données pour les solutions !")
+        return
+
+    file = open(fichier_ftotal)
+    ftot = file.read()
+    file.close()
+
+    ftot = [ligne for ligne in ftot.split("\n") if ligne != '']  # On enlève les lignes vides
+
+    if any(len(ligne.split()) != 2 for ligne in ftot):
+        messagebox.showerror("Données", "Le fichier F[X] n'est pas bien formaté !")
+        return
+
+    for f in fichiersSolu:
+        file = open(f, 'r')
+        lines = file.readlines()
+        file.close()
+
+        lines = [ligne for ligne in lines if ligne != '']  # On enlève les lignes vides
+
+        if any(len(l.split(";")) != 2 for l in lines):
+            messagebox.showerror("Données", "Le fichier " + f + " n'est pas bien formaté !")
+            return
+
+    messagebox.showinfo("Données", "Les données sont formatées correctement !")
 
 
 # ===============================================================================
@@ -1413,7 +1465,7 @@ radioKj = tkt.Radiobutton(containerRadio, text="Kj/mol", value=2)
 radioEv.grid(row=0, column=0, sticky=NSEW)
 radioKj.grid(row=0, column=1, sticky=NSEW)
 
-boutonVerifData = tkt.Button(cadre3, text="Vérifier les données", command=recuperation, bd=3)
+boutonVerifData = tkt.Button(cadre3, text="Vérifier les données", command=checkData, bd=3)
 boutonVerifData.grid(row=5, column=4, sticky=NSEW)
 
 tkt.Label(cadre3, text="", font=("Helvetica", 11)).grid(row=6, column=0, columnspan=5, sticky=NSEW)
