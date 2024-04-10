@@ -1,6 +1,6 @@
 import sys
 import tkinter as tkt
-from tkinter import ttk, messagebox, NSEW, N, S, NS, END, filedialog, VERTICAL, RIGHT, Y, ALL, X, DISABLED
+from tkinter import ttk, messagebox, NSEW, N, S, NS, END, filedialog
 
 import matplotlib.pyplot as plt
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
@@ -1053,7 +1053,7 @@ def lire_fichier_solu():
         return
 
     texte = texte.split("\n")  # On découpe le texte en lignes
-    texte = [ligne for ligne in texte if ligne != ''] # On enlève les lignes vides
+    texte = [ligne for ligne in texte if ligne != '']  # On enlève les lignes vides
 
     # Ouvrir une fenêtre pour afficher les données du fichier
     fenetreFichier = tkt.Toplevel(fenetre)
@@ -1422,7 +1422,7 @@ boutonCalcul = tkt.Button(cadre3, text="Calculer", command=calculSolu, bd=3)
 boutonCalcul.grid(row=7, column=2, sticky=NSEW)
 
 texte0 = tkt.Label(fenetre,
-                   text="Version: 0.4.4 du 14/03/2024 par Jawad Maache \n "
+                   text="Version: 0.4.4 du 10/04/2024 par Jawad Maache \n "
                         "Versions précédentes: 0.3 du 14/12/2023 par Kevin Gautier \n "
                         "0.2 du 06/05/2023 par Gabriel Faraut \n "
                         "0.1 du 25/06/2021 par Damien Connétable \n "
