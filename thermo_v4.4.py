@@ -1151,6 +1151,7 @@ def calculSolu():
     plot1.set_ylabel('Temperature [K]')
     plot1.set_title(titreGraphique.get())
     plot1.legend()
+    plot1.grid()
 
     canvas = FigureCanvasTkAgg(fig, master=fenetreSolu)
     canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
@@ -1217,7 +1218,7 @@ def lire_fichier_ftotal():
     fenetreFichier.mainloop()
 
 
-def checkData():
+def check_data():
     global fichier_ftotal
     global fichiersSolu
 
@@ -1465,7 +1466,7 @@ radioKj = tkt.Radiobutton(containerRadio, text="Kj/mol", value=2)
 radioEv.grid(row=0, column=0, sticky=NSEW)
 radioKj.grid(row=0, column=1, sticky=NSEW)
 
-boutonVerifData = tkt.Button(cadre3, text="Vérifier les données", command=checkData, bd=3)
+boutonVerifData = tkt.Button(cadre3, text="Vérifier les données", command=check_data, bd=3)
 boutonVerifData.grid(row=5, column=4, sticky=NSEW)
 
 tkt.Label(cadre3, text="", font=("Helvetica", 11)).grid(row=6, column=0, columnspan=5, sticky=NSEW)
