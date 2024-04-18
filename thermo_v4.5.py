@@ -85,6 +85,7 @@ def convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atom="C", DFT=False, nrjREF=0.0
         bulk = False
         lac = False
         monosolute = False
+        EFv = 0.0
 
         for i in range(len(E)):
             if (nbY[i] == 0) and (nbV[i] == 0):
@@ -208,7 +209,26 @@ def calculpotentielv1(nY, nV, Eb, dtype, EFv, fileout, muMIN=-12, muMAX=-3, atom
 """
 
 
-# Il y a maintenant 2 fonctions similaires "calcul_grand_canonique", une qui permet de calculer en isotherme (calcul_grand_canonique_isoth), l'autre en isoconcentration (calcul_grand_canonique)
+def fonction_cluster(nat, atome, DFTnrj, debug, EoREF=0.0):
+    # recupérer les valeurs de convNRJ2bind après lecture du fichier
+    if selection_d.get() == "DFT":
+        nbY, nbV, deg, E, deftype, charge = lecture(fichier, debug, oxyde=False)
+        nY, nV, g, Eb, dtype, EFv = convNRJ2bind(nbY, nbV, deg, E, deftype, nat, atome, DFTnrj, nrjREF=EoREF)
+    else:
+        messagebox.showwarning("Attention", "Il faut sélectionner DFT pour pouvoir continuer")
+        return
+
+    mu_O = Symbol('mu_O')
+    T = Symbol('T')
+    Cv = exp(- EFv / (kB * T))
+
+    clusters = [g[i] * exp(- (Eb[i] + nY[i] * mu_O) / (kB * T)) * (Cv ** nV[i]) for i in range(len(nY))]
+
+    return sum(clusters)
+
+
+# Il y a maintenant 2 fonctions similaires "calcul_grand_canonique", une qui permet de calculer en isotherme
+# (calcul_grand_canonique_isoth), l'autre en isoconcentration (calcul_grand_canonique)
 def calcul_grand_canonique(nY, nV, g, Eb, dtype, charge, Ti, Tf, dT, conc, EFv, fileout, ensemble, atom, oxyde):
     global figs
     figs = []  # On réinitialise la liste des graphes, au cas où on lance les tracés plusieurs fois de suite!
@@ -1035,12 +1055,12 @@ def select_fichier_solu():
         fichiersSolu.append(f)
         listFichier.insert(END, f.split("/")[-1])
 
-    return
+    messagebox.showinfo("Fichiers", "Les fichiers ont été sélectionnés avec succès")
 
 
 def lire_fichier_solu():
     """
-    Ouvre une fenêtre pour lire le fichier de données sélectionné
+    Ouvre une fenêtre pour lire le fichier de données expérimentales sélectionné
     :return:
     """
 
@@ -1076,7 +1096,7 @@ def lire_fichier_solu():
     fenetreFichier.mainloop()
 
 
-def calculSolu():
+def calcul_solubilite():
     """
     Calcul de la solubilité
     :return:
@@ -1099,7 +1119,14 @@ def calculSolu():
         messagebox.showerror("Données", "Veuillez sélectionner un fichier de données pour F[X] !")
         return
 
-    x = Symbol('x')
+    # Calcul récupération data
+    data = recuperation()
+    nat = data[6]
+    atome = data[7]
+    DFTnrj = data[12]
+    debug = data[20]
+
+    mu_O = Symbol('mu_O')
     T = []
     F = []
     kB = 8.6173303e-5
@@ -1130,17 +1157,42 @@ def calculSolu():
         temp[f] = t
 
     concentration = []
+    mu_sol = [-0.1]
+    sum_cluster = fonction_cluster(nat, atome, DFTnrj, debug)
 
     for i in range(50, 100):
         beta = 1 / (kB * T[i])
 
-        value = nsolve(96 * (exp(x * beta)) - 1 / 2 * (beta * (x + F[i])), -0.1)
+        ''' 
+        Aide pour le calcul de la solubilité 
+        On doit trouver x (qui ici est le potentiel chimique) :
+        1 / 2 * beta * (x + F[i]) = somme [ g[i] * exp(- Eb[i] / (kB * T)) * (Yc ** nY[i]) * (Cv ** nV[i]) for i in range(len(nY)) ] (terme entre les crochets est la somme des clusters de la ligne 246 du code)
+        A droite de l'égalité, on a pas de x, on ne peut pas résoudre l'équation telle quelle
+        On la transforme comme suit :
+        1 / 2 * beta * (x + F[i]) = somme [ g[i] * exp(- (Eb[i] + nY[i]*x) / (kB * T)) * (Cv ** nV[i]) for i in range(len(nY)) ] (on peut laisser les lacunes pour le moment)
+        (entre les crochets de somme, c'est la variable cluster[i] de la ligne 246 du code)
+
+        Mais sous cette forme, on peut pas utiliser les calculs de la ligne 246 du code. Il faudrait donc modifier la fonction calcul_grand_canonique pour la réécrire sous cette forme.
+        C'est peut-être un peu long, donc je te propose de créer une nouvelle fonction, qui fait la même chose que calcul_grand_canonique, mais qui renvoie la somme des clusters (le terme entre les crochets de la ligne 246) pour chaque température écrit de la manière ci-dessus.
+
+        Et après, on pourra résoudre l'équation pour x comme suit (quelque chose comme ça, à vérifier):
+        value = nsolve(1 / 2 * beta * (x + F[i]) - sum[ cluster[i] for i in len(cluster) ], -0.1)
+
+        Attention ! Le coefficient 1/2 dépend de la phase ordonnée. Dans notre cas, c'est Ti2N, d'où 1/2 (c'est TixNy, et le ratio y/x)
+        Il faudra donc prévoir un endroit pour le modifier (par exemple, dans l'interface graphique, laisser un champ pour donner la steochiométrie de la phase ordonnée)
+        '''
+
+        sum_cluster = sum_cluster.subs({Symbol('T'): T[i]})
+        value = nsolve(1 / 2 * beta * (mu_O + F[i]) - sum_cluster, -0.1, verify=False)
+
+        # On stocke la valeur de value dans mu_sol pour la prochaine itération (à travailler, car on n'obtient pas le
+        # même résultat que si on met -0.1 en paramètre)
+        mu_sol.append(value)
         concentration.append(1 / 2 * (value + F[i]) * beta / 100)
 
     fenetreSolu = tkt.Toplevel()
     fenetreSolu.title("Calcul de solubilité")
     fenetreSolu.geometry("900x700")
-    # tracer le graphe dans la fenêtre
 
     fig = plt.figure()
     plot1 = fig.add_subplot(111)
@@ -1165,7 +1217,7 @@ def calculSolu():
 
 def select_fichier_ftotal():
     """
-    Ouvre une fenêtre pour sélectionner un fichier de données
+    Ouvre une fenêtre pour sélectionner le fichier ftotal
     :return:
     """
     global fichier_ftotal
@@ -1180,13 +1232,15 @@ def select_fichier_ftotal():
     return
 
 
-def lire_fichier_ftotal():
+def lire_fichier_ftotal(v):
     """
-    Ouvre une fenêtre pour sélectionner un fichier de données
+    Ouvre une fenêtre pour lire le fichier ftotal sélectionné (affiche les valeurs des énergies libres
+    en Ev ou en Kj/mol en fonction de l'unité choisie)
     :return:
     """
     global fichier_ftotal
 
+    print(v)
     try:
         file = open(fichier_ftotal)
         texte = file.read()
@@ -1205,20 +1259,30 @@ def lire_fichier_ftotal():
     style.configure("Treeview", font=('Helvetica', 13))
     tree = ttk.Treeview(fenetreFichier, columns=("Température (K)", "Energie libre totale F[X] (eV)"), show='headings')
     tree.heading('Température (K)', text='Température (K)')
-    tree.heading('Energie libre totale F[X] (eV)', text='Energie libre totale F[X] (eV)')
+    if v == "1":
+        tree.heading('Energie libre totale F[X] (eV)', text='Energie libre totale F[X] (eV)')
+    else:
+        tree.heading('Energie libre totale F[X] (eV)', text='Energie libre totale F[X] (Kj/mol)')
     tree.column('Température (K)', anchor='center')
     tree.column('Energie libre totale F[X] (eV)', anchor='center')
     tree.pack(expand=True, fill=tkt.BOTH)
 
     for i in range(len(texte)):
         ligne = texte[i].split()
-        tree.insert("", "end", values=(ligne[0], ligne[1]))
+        if v == "1":  # On affiche les valeurs en eV
+            tree.insert("", "end", values=(ligne[0], ligne[1]))
+        else:  # On affiche les valeurs en Kj/mol
+            tree.insert("", "end", values=(ligne[0], float(ligne[1]) * 96.485))
 
     fenetreFichier.geometry("800x600")
     fenetreFichier.mainloop()
 
 
 def check_data():
+    """
+    Vérifie que les données sont bien formatées
+    :return:
+    """
     global fichier_ftotal
     global fichiersSolu
 
@@ -1260,9 +1324,9 @@ def check_data():
 
 fichier = None  # Pour stocker le fichier de données sélectionné
 fichiersSolu = []  # Pour stocker les fichiers pour le calcul de solubilité
-fichier_ftotal = None  # Pour stocker le fichier de données sélectionné
+fichier_ftotal = None  # Pour stocker le fichier ftotal sélectionné
 figs = []  # Pour stocker notre série de graphes
-select = 0  # Cette variable nous sera utile pour faire défiler les graphes!
+select = 0  # Cette variable nous sera utile pour faire défiler les graphes !
 fenetre = tkt.Tk()
 fenetre.title("Calcul des énergies")
 fenetre.geometry("1200x900")
@@ -1453,16 +1517,18 @@ textSelectFichierFtotal.grid(row=0, column=4, sticky=NSEW)
 boutonSelectFtotal = tkt.Button(cadre3, text="Sélectionner Ftotal", command=select_fichier_ftotal, bd=3)
 boutonSelectFtotal.grid(row=1, column=4, sticky=NSEW)
 
-boutonLireFtotal = tkt.Button(cadre3, text="Lire Ftotal", command=lire_fichier_ftotal, bd=3)
+boutonLireFtotal = tkt.Button(cadre3, text="Lire Ftotal", command=lambda: lire_fichier_ftotal(v.get()), bd=3)
 boutonLireFtotal.grid(row=2, column=4, sticky=NSEW)
 
+v = tkt.StringVar()
 containerRadio = tkt.Frame(cadre3)
 containerRadio.rowconfigure(0, weight=1)
 containerRadio.columnconfigure(0, weight=1)
 containerRadio.columnconfigure(1, weight=1)
 containerRadio.grid(row=3, column=4, sticky=NSEW)
-radioEv = tkt.Radiobutton(containerRadio, text="Ev", value=1)
-radioKj = tkt.Radiobutton(containerRadio, text="Kj/mol", value=2)
+radioEv = tkt.Radiobutton(containerRadio, text="Ev", value=1, variable=v)
+radioKj = tkt.Radiobutton(containerRadio, text="Kj/mol", value=2, variable=v)
+radioEv.select()
 radioEv.grid(row=0, column=0, sticky=NSEW)
 radioKj.grid(row=0, column=1, sticky=NSEW)
 
@@ -1471,11 +1537,11 @@ boutonVerifData.grid(row=5, column=4, sticky=NSEW)
 
 tkt.Label(cadre3, text="", font=("Helvetica", 11)).grid(row=6, column=0, columnspan=5, sticky=NSEW)
 
-boutonCalcul = tkt.Button(cadre3, text="Calculer", command=calculSolu, bd=3)
+boutonCalcul = tkt.Button(cadre3, text="Calculer", command=calcul_solubilite, bd=3)
 boutonCalcul.grid(row=7, column=2, sticky=NSEW)
 
 texte0 = tkt.Label(fenetre,
-                   text="Version: 0.4.4 du 10/04/2024 par Jawad Maache \n "
+                   text="Version: 0.4.5 du 18/04/2024 par Jawad Maache \n "
                         "Versions précédentes: 0.3 du 14/12/2023 par Kevin Gautier \n "
                         "0.2 du 06/05/2023 par Gabriel Faraut \n "
                         "0.1 du 25/06/2021 par Damien Connétable \n "
