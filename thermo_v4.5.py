@@ -3,6 +3,7 @@ import tkinter as tkt
 from tkinter import ttk, messagebox, NSEW, N, S, NS, END, filedialog
 
 import matplotlib.pyplot as plt
+from matplotlib import ticker
 from matplotlib.backends._backend_tk import NavigationToolbar2Tk
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 from sympy import exp, nsolve, Symbol
@@ -1131,6 +1132,9 @@ def calcul_solubilite():
     F = []
     kB = 8.6173303e-5
 
+    temp_min = float('inf')
+    temp_max = float('-inf')
+
     solu = {}
     temp = {}
 
@@ -1140,6 +1144,10 @@ def calcul_solubilite():
     for l in lines:
         l = l.split()
         T.append(float(l[0]))
+        if float(l[0]) < temp_min:
+            temp_min = float(l[0])
+        if float(l[0]) > temp_max:
+            temp_max = float(l[0])
         F.append(float(l[1]))
 
     for f in fichiersSolu:
@@ -1153,6 +1161,12 @@ def calcul_solubilite():
             l = l.split(";")
             sol.append(float(l[0]))
             t.append(float(l[1]))
+
+            if float(l[1]) < temp_min:
+                temp_min = float(l[1])
+            if float(l[1]) > temp_max:
+                temp_max = float(l[1])
+
         solu[f] = sol
         temp[f] = t
 
@@ -1184,6 +1198,7 @@ def calcul_solubilite():
 
         sum_cluster = sum_cluster.subs({Symbol('T'): T[i]})
         value = nsolve(1 / 2 * beta * (mu_O + F[i]) - sum_cluster, -0.1, verify=False)
+        # value = nsolve(1 / 2 * beta * (mu_O + F[i]) - sum_cluster, mu_sol[-1], verify=False)
 
         # On stocke la valeur de value dans mu_sol pour la prochaine itération (à travailler, car on n'obtient pas le
         # même résultat que si on met -0.1 en paramètre)
@@ -1203,7 +1218,8 @@ def calcul_solubilite():
     plot1.set_ylabel('Temperature [K]')
     plot1.set_title(titreGraphique.get())
     plot1.legend()
-    plot1.grid()
+    plot1.yaxis.set_major_locator(ticker.MultipleLocator(100))
+    plot1.grid(linestyle='--')
 
     canvas = FigureCanvasTkAgg(fig, master=fenetreSolu)
     canvas.get_tk_widget().pack(fill=tkt.BOTH, expand=True)
